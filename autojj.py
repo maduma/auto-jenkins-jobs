@@ -1,12 +1,13 @@
 import logging
 
-ACTION = 0
-GO_ON = 1
+logging.basicConfig(level=logging.DEBUG)
 
-NOP = 0
-CREATE_JOB = 1
-UPDATE_JOB = 2
-CREATE_FOLDER = 3
+ACTION = 'action'
+GO_ON = 'go_on'
+NOP = None
+CREATE_JOB = 'create_job'
+UPDATE_JOB = 'update_job'
+CREATE_FOLDER = 'create_folder'
 
 def next_api(job_exists, folder_exists, job_up_to_date=False):
     api = {}
@@ -27,8 +28,8 @@ def next_api(job_exists, folder_exists, job_up_to_date=False):
 
     if not api:
         logging.error(f'Bad input: job_exists={job_exists} , folder_exists={folder_exists} , job_up_to_date={job_up_to_date}')
-        return {ACTION: NOP, GO_ON: False}
+        api = {ACTION: NOP, GO_ON: False}
     else:
         logging.debug(f'job_exists={job_exists} , folder_exists={folder_exists} , job_up_to_date={job_up_to_date}')
         logging.info(f'ACTION: {api[ACTION]}, GO_ON: {api[GO_ON]}')
-        return api
+    return api
