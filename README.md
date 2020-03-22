@@ -6,3 +6,6 @@
 
     https://gitlab.maduma.org/maduma/pompiste/-/raw/master/Jenkinsfile
     https://raw.githubusercontent.com/maduma/flutiste/master/Jenkinsfile
+
+## make usre flask is running single threaded
+- FLASK_APP=web.py flask run --without-threads
