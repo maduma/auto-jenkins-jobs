@@ -1,5 +1,5 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
-from autojj import get_job
+from autojj import get_job, is_autojj_project
 import json
 
 def test_new_job_creation_folder():
@@ -43,3 +43,48 @@ def test_get_job_bad_data():
 def test_get_job_no_data():
     job = get_job(None)
     assert job == None
+
+def test_isAutoJJProject_mule_project1():
+    jenkinsfile="""
+def someveryothercoder = "please"
+mulePipeline([
+    registry: "cicdships.azurecr.io",
+])
+"""
+    assert is_autojj_project(jenkinsfile, methods=['mulePipeline'])
+
+def test_isAutoJJProject_mule_project2():
+    jenkinsfile="""
+    mulePipeline registry: "cicdships.azurecr.io"
+"""
+    assert is_autojj_project(jenkinsfile, methods=[
+        'phpPipeline',
+        'mulePipeline',
+    ])
+
+def test_isAutoJJProject_mule_project_3():
+    jenkinsfile="""
+    mulePipeline()
+"""
+    assert is_autojj_project(jenkinsfile, methods=['mulePipeline'])
+
+def test_isAutoJJProject_mule_project_4():
+    jenkinsfile="""
+    phpPipeline()
+"""
+    assert is_autojj_project(jenkinsfile, methods=['phpPipeline'])
+
+def test_isAutoJJProject_mule_project_bad1():
+    jenkinsfile="""
+examulePipelinetrop([
+    registry: "cicdships.azurecr.io",
+])
+"""
+    assert not is_autojj_project(jenkinsfile, methods=['phpPipeline'])
+
+def test_isAutoJJProject_mule_project_bad2():
+    jenkinsfile="""
+    pipeline()
+"""
+    # check that method are correct (only alphanumeric char)
+    assert not is_autojj_project(jenkinsfile, methods=['pipeline-2'])

@@ -1,4 +1,5 @@
 import logging
+import re
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -48,3 +49,14 @@ def get_job(post_data):
         ])
     git_url = post_data['project']['git_http_url']
     return { "name": name, 'git_url': git_url }
+
+def is_autojj_project(jenkinsfile, methods):
+    # look for groovy method
+    for word in methods:
+        if not re.match(r'\w+', word):
+            return False
+        regex = r'(\s|^){}(\s|\()'.format(word)
+        pattern = re.compile(regex)
+        if pattern.search(jenkinsfile):
+            return True
+    return False
