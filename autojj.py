@@ -37,9 +37,9 @@ def next_action(job_exists, folder_exists, job_up_to_date=False):
 
 
 def get_job(post_data):
-    if not post_data:
-        return None
-    if not post_data.get('event_name') == "repository_update":
+    if not post_data or not post_data.get('event_name') == "repository_update":
+        logging.error('Cannot get job name from post data')
+        logging.debug(f'Bad input: {post_data}')
         return None
 
     name = '/'.join([
