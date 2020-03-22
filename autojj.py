@@ -34,3 +34,17 @@ def next_action(job_exists, folder_exists, job_up_to_date=False):
         logging.info(f'ACTION: {action[ACTION]}, GO_ON: {action[GO_ON]}')
 
     return action
+
+
+def get_job(post_data):
+    if not post_data:
+        return None
+    if not post_data.get('event_name') == "repository_update":
+        return None
+
+    name = '/'.join([
+        post_data['project']['namespace'],
+        post_data['project']['name'],
+        ])
+    git_url = post_data['project']['git_http_url']
+    return { "name": name, 'git_url': git_url }
