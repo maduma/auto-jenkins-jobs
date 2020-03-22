@@ -1,5 +1,5 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
-from autojj import get_job, is_autojj_project, get_raw_gitlab_jenkinsfile_url
+from autojj import get_project, is_autojj_project, get_raw_gitlab_jenkinsfile_url
 import json
 
 def test_new_job_creation_folder():
@@ -28,26 +28,26 @@ def test_bad_input1(): # job exists but not the folder !
     rest_api = next_action(job_exists=True, folder_exists=False, job_up_to_date=True)
     assert rest_api == { ACTION: NOP, GO_ON: False }
 
-def test_get_job_repository_update_event():
+def test_get_project_repository_update_event():
     with open('repository_update_event.json', 'r') as f:
         post_data = json.load(f)
-        job = get_job(post_data)
-        assert job == { "name": "maduma/toto", "git_url": "https://gitlab.maduma.org/maduma/toto.git" }
+        job = get_project(post_data)
+        assert job == { "id": 6, "name": "maduma/toto", "git_url": "https://gitlab.maduma.org/maduma/toto.git" }
 
-def test_get_job__other_event():
+def test_get_project__other_event():
     with open('project_destroy_event.json', 'r') as f:
         post_data = json.load(f)
-        job = get_job(post_data)
+        job = get_project(post_data)
         assert job == None
 
-def test_get_job_bad_data():
+def test_get_project_bad_data():
     with open('bad_data.json', 'r') as f:
         post_data = json.load(f)
-        job = get_job(post_data)
+        job = get_project(post_data)
         assert job == None
 
-def test_get_job_no_data():
-    job = get_job(None)
+def test_get_project_no_data():
+    job = get_project(None)
     assert job == None
 
 def test_isAutoJJProject_mule_project1():
@@ -97,5 +97,6 @@ def test_isAutoJJProject_mule_project_bad2():
 
 def test_get_raw_jenkinsfile_url():
     git_http = 'https://gitlab.maduma.org/maduma/pompiste.git'
-    url = get_raw_gitlab_jenkinsfile_url(git_http)
-    assert url == 'https://gitlab.maduma.org/maduma/pompiste/-/raw/master/Jenkinsfile'
+    id = 6
+    url = get_raw_gitlab_jenkinsfile_url(id, git_http)
+    assert url == 'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master'

@@ -1,5 +1,6 @@
 import logging
 import re
+import requests
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -37,7 +38,7 @@ def next_action(job_exists, folder_exists, job_up_to_date=False):
     return action
 
 
-def get_job(post_data):
+def get_project(post_data):
     if not post_data or not post_data.get('event_name') == "repository_update":
         logging.error('Cannot get job name from post data')
         logging.debug(f'Bad input: {post_data}')
@@ -48,7 +49,8 @@ def get_job(post_data):
         post_data['project']['name'],
         ])
     git_url = post_data['project']['git_http_url']
-    return { "name": name, 'git_url': git_url }
+    id = post_data['project']['id']
+    return { "id": id, "name": name, 'git_url': git_url }
 
 def is_autojj_project(jenkinsfile, methods):
     # look for groovy method
@@ -61,5 +63,15 @@ def is_autojj_project(jenkinsfile, methods):
             return True
     return False
 
-def get_raw_gitlab_jenkinsfile_url(git_url):
-    return git_url[:-4] + '/-/raw/master/Jenkinsfile'
+def get_raw_gitlab_jenkinsfile_url(id, git_url):
+    base = ('/').join(git_url.split('/')[:3])
+    return base + '/api/v4/projects/{}/repository/files/Jenkinsfile/raw?ref=master'.format(id)
+
+def process_event(event):
+    token = 'DrMugGDhLrYXs_q-Lrp1'
+    project = get_project(event)
+    if project:
+        url = get_raw_gitlab_jenkinsfile_url(project['git_url'])
+        print(url, flush=True)
+        response = requests.get(url, auth=('maduma', 'Nzungan1'))
+    return "200 OK"

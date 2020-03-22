@@ -9,3 +9,5 @@
 
 ## make usre flask is running single threaded
 - FLASK_APP=web.py flask run --without-threads
+
+curl --header 'PRIVATE-TOKEN: Bkx51FNtNUdeVYFumnZn' 'https://gitlab.maduma.org/api/v4/projects/2/repository/files/Jenkinsfile/raw?ref=master'
