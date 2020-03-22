@@ -1,5 +1,5 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
-from autojj import get_job, is_autojj_project
+from autojj import get_job, is_autojj_project, get_raw_gitlab_jenkinsfile_url
 import json
 
 def test_new_job_creation_folder():
@@ -94,3 +94,8 @@ def test_isAutoJJProject_mule_project_bad2():
 """
     # check that method are correct (only alphanumeric char)
     assert not is_autojj_project(jenkinsfile, methods=['pipeline-2'])
+
+def test_get_raw_jenkinsfile_url():
+    git_http = 'https://gitlab.maduma.org/maduma/pompiste.git'
+    url = get_raw_gitlab_jenkinsfile_url(git_http)
+    assert url == 'https://gitlab.maduma.org/maduma/pompiste/-/raw/master/Jenkinsfile'

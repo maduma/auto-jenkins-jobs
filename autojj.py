@@ -60,3 +60,6 @@ def is_autojj_project(jenkinsfile, methods):
         if pattern.search(jenkinsfile):
             return True
     return False
+
+def get_raw_gitlab_jenkinsfile_url(git_url):
+    return git_url[:-4] + '/-/raw/master/Jenkinsfile'
