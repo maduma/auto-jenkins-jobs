@@ -1,6 +1,7 @@
 import logging
 import re
 import requests
+import os
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -68,10 +69,13 @@ def get_raw_gitlab_jenkinsfile_url(id, git_url):
     return base + '/api/v4/projects/{}/repository/files/Jenkinsfile/raw?ref=master'.format(id)
 
 def process_event(event):
-    token = 'DrMugGDhLrYXs_q-Lrp1'
+    token = 'Bkx51FNtNUdeVYFumnZn'
     project = get_project(event)
     if project:
-        url = get_raw_gitlab_jenkinsfile_url(project['git_url'])
-        print(url, flush=True)
-        response = requests.get(url, auth=('maduma', 'Nzungan1'))
+        url = get_raw_gitlab_jenkinsfile_url(project['id'], project['git_url'])
+        response = requests.get(url, headers={'PRIVATE-TOKEN': token})
+        if response.status_code == 200:
+            jenkinsfile = response.text
+            jj = is_autojj_project(jenkinsfile, methods=['mulePipeline'])
+            print("Is an autojj project: {}".format(jj), flush=True)
     return "200 OK"
