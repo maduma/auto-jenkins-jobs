@@ -2,6 +2,7 @@
 import jenkins
 import os
 import xml.etree.ElementTree as ET
+import re
 
 JENKINS_SERVER = os.environ.get('JENKINS_SERVER', 'unknown')
 JENKINS_USERNAME = os.environ.get('JENKINS_USERNAME', 'unknown')
@@ -42,6 +43,13 @@ def get_description(xml):
     for child in root:
         if child.tag == 'description': break
     return child.text
+
+def get_job_type_and_version(description):
+    pattern = r'\s?Auto Jenkins Job, (\w+):(\S+)'
+    match = re.search(pattern, description)
+    if match:
+        return {'type': match[1], 'version': match[2]}
+    return None
 
 def jenkins_connect():
     return jenkins.Jenkins(JENKINS_SERVER, username=JENKINS_USERNAME, password=JENKINS_PASSWORD, timeout=2)
