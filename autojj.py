@@ -50,7 +50,7 @@ def get_project(post_data):
         post_data['project']['name'],
         ])
     git_url = post_data['project']['git_http_url']
-    id = post_data['project']['id']
+    id = post_data['project_id']
     return { "id": id, "name": name, 'git_url': git_url }
 
 def is_autojj_project(jenkinsfile, methods):
@@ -64,18 +64,31 @@ def is_autojj_project(jenkinsfile, methods):
             return True
     return False
 
-def get_raw_gitlab_jenkinsfile_url(id, git_url):
-    base = ('/').join(git_url.split('/')[:3])
-    return base + '/api/v4/projects/{}/repository/files/Jenkinsfile/raw?ref=master'.format(id)
+def get_raw_gitlab_jenkinsfile_url(project):
+    project_url = project['git_url']
+    project_id = project['id']
+    base = ('/').join(project_url.split('/')[:3])
+    return base + '/api/v4/projects/{}/repository/files/Jenkinsfile/raw?ref=master'.format(project_id)
+
+def get_jenkinsfile(project, token):
+    url = get_raw_gitlab_jenkinsfile_url(project)
+    resp = requests.get(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
+    if resp.status_code == 200:
+        return resp.text
+    else:
+        logging.error('Cannot get Jenkins file')
+        return None
 
 def process_event(event):
-    token = 'Bkx51FNtNUdeVYFumnZn'
     project = get_project(event)
+    token = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
     if project:
-        url = get_raw_gitlab_jenkinsfile_url(project['id'], project['git_url'])
-        response = requests.get(url, headers={'PRIVATE-TOKEN': token})
-        if response.status_code == 200:
-            jenkinsfile = response.text
-            jj = is_autojj_project(jenkinsfile, methods=['mulePipeline'])
-            print("Is an autojj project: {}".format(jj), flush=True)
+        jenkinsfile = get_jenkinsfile(project, token)
+        if jenkinsfile and is_autojj_project(jenkinsfile, methods=['mulePipeline']):
+            # get job_exists, folder exists and job uptodate
+            # in a jenkins module
+            # do not create folders automaticaly (?)
+            pass
+        else:
+            'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
     return "200 OK"

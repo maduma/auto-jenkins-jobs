@@ -1,6 +1,8 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
 from autojj import get_project, is_autojj_project, get_raw_gitlab_jenkinsfile_url
+from autojj import get_jenkinsfile
 import json
+import responses
 
 def test_new_job_creation_folder():
     rest_api = next_action(job_exists=False, folder_exists=False)
@@ -96,7 +98,19 @@ def test_isAutoJJProject_mule_project_bad2():
     assert not is_autojj_project(jenkinsfile, methods=['pipeline-2'])
 
 def test_get_raw_jenkinsfile_url():
-    git_http = 'https://gitlab.maduma.org/maduma/pompiste.git'
-    id = 6
-    url = get_raw_gitlab_jenkinsfile_url(id, git_http)
+    project = {'id': 6, 'git_url': 'https://gitlab.maduma.org/maduma/pompiste.git', 'name': 'maduma/pompiste'}
+    url = get_raw_gitlab_jenkinsfile_url(project)
     assert url == 'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master'
+
+@responses.activate
+def test_getjenkinsfile():
+    responses.add(
+        responses.GET,
+        'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master',
+        body='mulePipeline()',
+        status=200,
+        )
+    project = {'id': 6, 'git_url': 'https://gitlab.maduma.org/maduma/pompiste.git', 'name': 'maduma/pompiste'}
+    jenkinsfile = get_jenkinsfile(project, token="myprivatetoken") 
+    assert jenkinsfile == 'mulePipeline()'
+    assert responses.calls[0].request.headers['PRIVATE-TOKEN'] == 'myprivatetoken'

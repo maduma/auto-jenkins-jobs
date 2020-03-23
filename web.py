@@ -1,21 +1,27 @@
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request
 import autojj
+import jenkins_client
 
 import time
 import os
+
+VERSION = os.environ.get('VERSION', 'unknown')
 
 app = Flask(__name__)
 
 @app.route('/autojj/event', methods=['POST'])
 def event():
     is_gitlab_system_event = request.headers.get('X-Gitlab-Event') == 'System Hook'
-    if is_gitlab_system_event and request.is_json:
+    if is_gitlab_system_event and request.is_json and jenkins_client.isJenkinsOnline():
         event = request.get_json()
         return autojj.process_event(event)
     else:
-        return abort(404, description="Can only process Gitlab 'repository_update' system hook")
+        return {'description': "Can only process Gitlab 'repository_update' system hook"}, 404
 
 @app.route('/autojj/health', methods=['GET'])
 def health():
-    version = os.environ.get('VERSION', 'unknown')
-    return jsonify({'status': 'pass', 'version': version, 'jenkins': 'online'})
+    jenkins_status = jenkins_client.isJenkinsOnline()
+    if jenkins_status:
+        return {'status': 'pass', 'version': VERSION, 'jenkins': jenkins_status}
+    else:
+        return {'status': 'No connection to Jenkins', 'version': VERSION, 'jenkins': 'unknown'}, 503
