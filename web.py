@@ -12,7 +12,7 @@ app = Flask(__name__)
 @app.route('/autojj/event', methods=['POST'])
 def event():
     is_gitlab_system_event = request.headers.get('X-Gitlab-Event') == 'System Hook'
-    if is_gitlab_system_event and request.is_json and jenkins_client.isJenkinsOnline():
+    if is_gitlab_system_event and request.is_json and jenkins_client.is_jenkins_online():
         event = request.get_json()
         return autojj.process_event(event)
     else:
@@ -20,7 +20,7 @@ def event():
 
 @app.route('/autojj/health', methods=['GET'])
 def health():
-    jenkins_status = jenkins_client.isJenkinsOnline()
+    jenkins_status = jenkins_client.is_jenkins_online()
     if jenkins_status:
         return {'status': 'pass', 'version': VERSION, 'jenkins': jenkins_status}
     else:
