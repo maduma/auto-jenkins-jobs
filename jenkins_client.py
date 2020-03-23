@@ -35,8 +35,13 @@ def is_job_exists(jenkins_job, xml_pattern):
     return False
 
 def is_job_up_to_date(jenkins_job_xml, pipeline_type='mulePipeline'):
-    # check the template version
-    pass
+    current_version = get_job_type_and_version(get_description(jenkins_job_xml))
+    with open('templates/' + pipeline_type + 'tmpl.xml') as f:
+        template_xml = f.read()
+        template_version = get_job_type_and_version(get_description(template_xml))
+        if current_version == template_version:
+            return True
+    return False
 
 def get_description(xml):
     root = ET.fromstring(xml)
@@ -53,3 +58,9 @@ def get_job_type_and_version(description):
 
 def jenkins_connect():
     return jenkins.Jenkins(JENKINS_SERVER, username=JENKINS_USERNAME, password=JENKINS_PASSWORD, timeout=2)
+
+def create_job():
+    pass
+
+def update_job():
+    pass

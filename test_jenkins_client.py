@@ -1,4 +1,4 @@
-from jenkins_client import is_job_up_to_date, get_job_type_and_version
+from jenkins_client import is_job_up_to_date, get_job_type_and_version, get_description
 import responses
 
 def test_is_jenkins_online_good():
@@ -24,6 +24,11 @@ def test_is_up_to_date_old2():
         xml = f.read()
         assert is_job_up_to_date(xml, pipeline_type='mulePipeline') == False
 """
+
+def test_get_description():
+    with open('job_good.xml', 'r') as f:
+        xml = f.read()
+        assert get_description(xml) == 'Auto Jenkins Job, mulePipeline:0.0.2'
 
 def test_get_job_type_and_version():
     assert get_job_type_and_version('Auto Jenkins Job, mulePipeline:0.0.2') == { 'type': 'mulePipeline', 'version': '0.0.2'}
