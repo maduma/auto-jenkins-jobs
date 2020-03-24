@@ -10,4 +10,3 @@
 ## make usre flask is running single threaded
 - FLASK_APP=web.py flask run --without-threads
 - gunicorn --reload --workers 1 --threads 1 --bind 0.0.0.0:5000 web:app
-gunicorn --reload --workers 1 --threads 1 --bind 0.0.0.0:5000 web:app

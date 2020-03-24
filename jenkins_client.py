@@ -35,11 +35,12 @@ def is_job_exists(jenkins_job, xml_pattern):
     return False
 
 def is_job_up_to_date(jenkins_job_xml, pipeline_type='mulePipeline'):
-    current_version = get_job_type_and_version(get_description(jenkins_job_xml))
-    with open('templates/' + pipeline_type + 'tmpl.xml') as f:
+    job_version = get_job_type_and_version(get_description(jenkins_job_xml))
+    with open('templates/' + pipeline_type + '.tmpl.xml') as f:
         template_xml = f.read()
         template_version = get_job_type_and_version(get_description(template_xml))
-        if current_version == template_version:
+        print(job_version, template_version)
+        if job_version == template_version:
             return True
     return False
 
@@ -47,9 +48,13 @@ def get_description(xml):
     root = ET.fromstring(xml)
     for child in root:
         if child.tag == 'description': break
+    else:
+        raise(LookupError('Cannot find description'))
     return child.text
 
 def get_job_type_and_version(description):
+    if not description:
+        return None
     pattern = r'\s?Auto Jenkins Job, (\w+):(\S+)'
     match = re.search(pattern, description)
     if match:
