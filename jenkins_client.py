@@ -63,24 +63,21 @@ def get_job_type_and_version(description):
         return {'type': match[1], 'version': match[2]}
     return None
 
-def create_xml():
-    pass
-
 # need mock to test
 def jenkins_connect():
     return jenkins.Jenkins(JENKINS_SERVER, username=JENKINS_USERNAME, password=JENKINS_PASSWORD, timeout=2)
 
 # need mock to test
-def create_job(job_name, job_xml):
+def create_job(project):
     server = jenkins_connect()
     pass
 
 # need mock to test
-def update_job(job_name, job_xml):
+def update_job(project):
     server = jenkins_connect()
     pass
 
 # need mock to test
-def create_folder(flolder_name, folder_xml):
+def create_folder(folder_name):
+    folder_xml = ''
     create_job(folder_name, folder_xml)
-    pass

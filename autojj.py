@@ -108,11 +108,16 @@ def process_event(event):
         if jenkinsfile and is_autojj_project(jenkinsfile, methods=['mulePipeline']):
             for action in actions(project):
                 do_jenkins_action(project, action)
-                pass
         else:
             return 'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
     return "200 OK"
 
 # to test
 def do_jenkins_action(project, action):
-    pass
+    if action[ACTION] == CREATE_JOB:
+        jenkins_client.create_job(project)
+    elif action[ACTION] == UPDATE_JOB:
+        jenkins_client.update_job(project)
+    elif action[ACTION] == CREATE_FOLDER:
+        name = project['name']
+        jenkins_client.create_folder(name)
