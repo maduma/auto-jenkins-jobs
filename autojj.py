@@ -81,6 +81,7 @@ def get_jenkinsfile(project, token):
         logging.error('Cannot get Jenkins file')
         return None
 
+# to test
 def get_job_state(project):
     pipeline_xml = jenkins_client.is_pipeline_exists(project['name'])
     is_folder_exists = jenkins_client.is_folder_exists(project['namespace'])
@@ -89,23 +90,29 @@ def get_job_state(project):
         is_pipeline_up_to_date = jenkins_client.is_job_up_to_date_xml(pipeline_xml)
     return (pipeline_xml, is_folder_exists, is_pipeline_up_to_date)
 
-# need to mock
-def actions(action, project):
+# recurtion and yield -> need to use 'yield from'
+def actions(project, action={ACTION: NOP, GO_ON: True}):
+    if action[ACTION] != NOP:
+        yield action
     if action[GO_ON]:
-        if action[ACTION] != NOP:
-            yield action
         state = get_job_state(project)
         action = next_action(*state)
-        actions(action, project)
+        yield from actions(project, action)
 
+# to test
 def process_event(event):
     project = get_project(event)
     token = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
     if project:
         jenkinsfile = get_jenkinsfile(project, token)
         if jenkinsfile and is_autojj_project(jenkinsfile, methods=['mulePipeline']):
-            for action in actions({ACTION: NOP, GO_ON: True}, project):
-                pass #print(action)
+            for action in actions(project):
+                do_jenkins_action(project, action)
+                pass
         else:
             'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
     return "200 OK"
+
+# to test
+def do_jenkins_action(project, action):
+    pass
