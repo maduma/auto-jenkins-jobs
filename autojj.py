@@ -2,6 +2,7 @@ import logging
 import re
 import requests
 import os
+import jenkins_client
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -45,13 +46,14 @@ def get_project(post_data):
         logging.debug(f'Bad input: {post_data}')
         return None
 
+    namespace = post_data['project']['namespace']
     name = '/'.join([
-        post_data['project']['namespace'],
+        namespace,
         post_data['project']['name'],
         ])
     git_url = post_data['project']['git_http_url']
     id = post_data['project_id']
-    return { "id": id, "name": name, 'git_url': git_url }
+    return { "id": id, "name": name, 'git_url': git_url , "namespace": namespace}
 
 def is_autojj_project(jenkinsfile, methods):
     # look for groovy method
@@ -79,16 +81,31 @@ def get_jenkinsfile(project, token):
         logging.error('Cannot get Jenkins file')
         return None
 
+def get_job_state(project):
+    pipeline_xml = jenkins_client.is_pipeline_exists(project['name'])
+    is_folder_exists = jenkins_client.is_folder_exists(project['namespace'])
+    is_pipeline_up_to_date = False
+    if pipeline_xml:
+        is_pipeline_up_to_date = jenkins_client.is_job_up_to_date_xml(pipeline_xml)
+    return (pipeline_xml, is_folder_exists, is_pipeline_up_to_date)
+
+# need to mock
+def actions(action, project):
+    if action[GO_ON]:
+        if action[ACTION] != NOP:
+            yield action
+        state = get_job_state(project)
+        action = next_action(*state)
+        actions(action, project)
+
 def process_event(event):
     project = get_project(event)
     token = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
     if project:
         jenkinsfile = get_jenkinsfile(project, token)
         if jenkinsfile and is_autojj_project(jenkinsfile, methods=['mulePipeline']):
-            # get job_exists, folder exists and job uptodate
-            # in a jenkins module
-            # do not create folders automaticaly (?)
-            pass
+            for action in actions({ACTION: NOP, GO_ON: True}, project):
+                pass #print(action)
         else:
             'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
     return "200 OK"

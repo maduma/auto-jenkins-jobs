@@ -34,7 +34,7 @@ def test_get_project_repository_update_event():
     with open('repository_update_event.json', 'r') as f:
         post_data = json.load(f)
         job = get_project(post_data)
-        assert job == { "id": 6, "name": "maduma/toto", "git_url": "https://gitlab.maduma.org/maduma/toto.git" }
+        assert job == { "id": 6, "name": "maduma/toto", "git_url": "https://gitlab.maduma.org/maduma/toto.git" , "namespace": "maduma"}
 
 def test_get_project__other_event():
     with open('project_destroy_event.json', 'r') as f:

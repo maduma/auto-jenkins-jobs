@@ -8,6 +8,7 @@ JENKINS_SERVER = os.environ.get('JENKINS_SERVER', 'unknown')
 JENKINS_USERNAME = os.environ.get('JENKINS_USERNAME', 'unknown')
 JENKINS_PASSWORD = os.environ.get('JENKINS_PASSWORD', 'unknown')
 
+# need mock to test
 def is_jenkins_online():
     try:
         server = jenkins_connect()
@@ -17,24 +18,25 @@ def is_jenkins_online():
     except:
         return False
 
-def is_pipeline_exists(jenkins_pipeline):
+def is_pipeline_exists(job_name):
     pattern =  '<flow-definition plugin="workflow-job@'
-    return is_job_exists(jenkins_pipeline, pattern)
+    return is_job_exists(job_name, pattern)
 
-def is_folder_exists(jenkins_folder):
+def is_folder_exists(floder_name):
     pattern = '<com.cloudbees.hudson.plugins.folder.Folder plugin="cloudbees-folder@'
-    return is_job_exists(jenkins_folder, pattern)
+    return is_job_exists(floder_name, pattern)
 
-def is_job_exists(jenkins_job, xml_pattern):
+# need mock to test
+def is_job_exists(job_name, xml_pattern):
     server = jenkins_connect()
-    if not server.get_job_name(jenkins_job):
+    if not server.get_job_name(job_name):
         return False
-    xml = server.get_job_config(jenkins_job)
+    xml = server.get_job_config(job_name)
     if xml_pattern in xml:
         return xml
     return False
 
-def is_job_up_to_date(jenkins_job_xml, pipeline_type='mulePipeline'):
+def is_job_up_to_date_xml(jenkins_job_xml, pipeline_type='mulePipeline'):
     job_version = get_job_type_and_version(get_description(jenkins_job_xml))
     with open('templates/' + pipeline_type + '.tmpl.xml') as f:
         template_xml = f.read()
@@ -61,11 +63,24 @@ def get_job_type_and_version(description):
         return {'type': match[1], 'version': match[2]}
     return None
 
+def create_xml():
+    pass
+
+# need mock to test
 def jenkins_connect():
     return jenkins.Jenkins(JENKINS_SERVER, username=JENKINS_USERNAME, password=JENKINS_PASSWORD, timeout=2)
 
-def create_job():
+# need mock to test
+def create_job(job_name, job_xml):
+    server = jenkins_connect()
     pass
 
-def update_job():
+# need mock to test
+def update_job(job_name, job_xml):
+    server = jenkins_connect()
+    pass
+
+# need mock to test
+def create_folder(flolder_name, folder_xml):
+    create_job(folder_name, folder_xml)
     pass
