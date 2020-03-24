@@ -100,24 +100,24 @@ def actions(project, action={ACTION: NOP, GO_ON: True}):
         yield from actions(project, action)
 
 # to test
+def do_jenkins_actions(project):
+    for action in actions(project):
+        if action[ACTION] == CREATE_JOB:
+            jenkins_client.create_job(project)
+        elif action[ACTION] == UPDATE_JOB:
+            jenkins_client.update_job(project)
+        elif action[ACTION] == CREATE_FOLDER:
+            name = project['name']
+            jenkins_client.create_folder(name)
+
+# to test
 def process_event(event):
     project = get_project(event)
     token = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
     if project:
         jenkinsfile = get_jenkinsfile(project, token)
         if jenkinsfile and is_autojj_project(jenkinsfile, methods=['mulePipeline']):
-            for action in actions(project):
-                do_jenkins_action(project, action)
+            do_jenkins_actions(project)
         else:
             return 'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
     return "200 OK"
-
-# to test
-def do_jenkins_action(project, action):
-    if action[ACTION] == CREATE_JOB:
-        jenkins_client.create_job(project)
-    elif action[ACTION] == UPDATE_JOB:
-        jenkins_client.update_job(project)
-    elif action[ACTION] == CREATE_FOLDER:
-        name = project['name']
-        jenkins_client.create_folder(name)
