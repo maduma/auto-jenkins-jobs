@@ -110,7 +110,7 @@ def process_event(event):
                 do_jenkins_action(project, action)
                 pass
         else:
-            'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
+            return 'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
     return "200 OK"
 
 # to test
