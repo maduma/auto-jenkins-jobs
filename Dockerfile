@@ -7,8 +7,8 @@ ENV AUTOJJ_VERSION=v0.0.1
 #ENV JENKINS_PASSWORD
 
 COPY . .
-RUN ls -l
 RUN pip install -r requirements.txt
+RUN ls -l
 RUN useradd -m autojj
 
 EXPOSE 5000
