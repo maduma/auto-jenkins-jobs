@@ -1,4 +1,5 @@
-autojj.py
-jenkins_client.py
-templates
-web.py
+Dockerfile
+README.md
+design.jpg
+start-gunicorn.sh
+test_*
