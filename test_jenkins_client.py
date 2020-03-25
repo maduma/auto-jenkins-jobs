@@ -4,7 +4,7 @@ from jenkins_client import jenkins_connect, create_job, update_job, create_folde
 import jenkins
 import responses
 import pytest
-import jenkins_mock
+import test_jenkins_mock
 
 def test_is_jenkins_online_good():
     #responses.add(responses.GET, 'http://172.10.23.3/crumbIssuer/api/json')
@@ -14,27 +14,27 @@ def test_is_jenkins_online_good():
     assert True == True
 
 def test_is_up_to_date_good():
-    with open('job_good.xml', 'r') as f:
+    with open('test_job_good.xml', 'r') as f:
         job_xml = f.read()
         assert is_job_up_to_date_xml(job_xml, template='test_pipeline.tmpl.xml') == True
 
 def test_is_up_to_date_old1():
-    with open('job_old1.xml', 'r') as f:
+    with open('test_job_old1.xml', 'r') as f:
         xml = f.read()
         assert is_job_up_to_date_xml(xml, template='test_pipeline.tmpl.xml') == False
 def test_is_up_to_date_old2():
-    with open('job_old2.xml', 'r') as f:
+    with open('test_job_old2.xml', 'r') as f:
         xml = f.read()
         assert is_job_up_to_date_xml(xml, template='test_pipeline.tmpl.xml') == False
 
 def test_get_description():
-    with open('job_good.xml', 'r') as f:
+    with open('test_job_good.xml', 'r') as f:
         xml = f.read()
         assert get_description(xml) == 'Auto Jenkins Job, mulePipeline:0.0.2'
 
 def test_get_description_bad():
     with pytest.raises(LookupError):
-        with open('job_bad.xml', 'r') as f:
+        with open('test_job_bad.xml', 'r') as f:
             xml = f.read()
             get_description(xml)
 
@@ -53,33 +53,33 @@ def test_get_job_type_and_version_empty():
 
 def test_create_xml():
     project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git'}
-    xml = create_xml(project, template='pipeline_test.tmpl.xml')
+    xml = create_xml(project, template='test_pipeline_short.tmpl.xml')
     assert xml == """<gitLabConnection></gitLabConnection>
 <url>https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git</url>
 <credentialsId>gitlab_maduma_org</credentialsId>
 """
 
 def test_jenkins_connect(monkeypatch):
-    monkeypatch.setattr(jenkins, "Jenkins", jenkins_mock.MockResponse)
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     assert jenkins_connect().server_created
 
 def test_jenkins_create_job(monkeypatch):
-    monkeypatch.setattr(jenkins, "Jenkins", jenkins_mock.MockResponse)
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'pompiste'}
-    with pytest.raises(jenkins_mock.Job_created_exception) as ex:
+    with pytest.raises(test_jenkins_mock.Job_created_exception) as ex:
         create_job(project)
     assert str(ex.value) == 'pompiste'
 
 def test_jenkins_update_job(monkeypatch):
-    monkeypatch.setattr(jenkins, "Jenkins", jenkins_mock.MockResponse)
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'flutiste'}
-    with pytest.raises(jenkins_mock.Job_reconfigured_exception) as ex:
+    with pytest.raises(test_jenkins_mock.Job_reconfigured_exception) as ex:
         update_job(project)
     assert str(ex.value) == 'flutiste'
 
 def test_jenkins_created_folder(monkeypatch):
-    monkeypatch.setattr(jenkins, "Jenkins", jenkins_mock.MockResponse)
-    with pytest.raises(jenkins_mock.Job_created_exception) as ex:
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
+    with pytest.raises(test_jenkins_mock.Job_created_exception) as ex:
         create_folder('mule')
     assert str(ex.value) == 'mule'
    

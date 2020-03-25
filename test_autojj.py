@@ -32,19 +32,19 @@ def test_action_bad_input(): # job exists but not the folder !
     assert rest_api == { ACTION: NOP, GO_ON: False }
 
 def test_get_project_repository_update_event():
-    with open('repository_update_event.json', 'r') as f:
+    with open('test_repository_update_event.json', 'r') as f:
         post_data = json.load(f)
         job = get_project(post_data)
         assert job == { "id": 6, "name": "maduma/toto", "git_url": "https://gitlab.maduma.org/maduma/toto.git" , "namespace": "maduma"}
 
 def test_get_project_other_event():
-    with open('project_destroy_event.json', 'r') as f:
+    with open('test_project_destroy_event.json', 'r') as f:
         post_data = json.load(f)
         job = get_project(post_data)
         assert job == None
 
 def test_get_project_bad_data():
-    with open('bad_data.json', 'r') as f:
+    with open('test_bad_data.json', 'r') as f:
         post_data = json.load(f)
         job = get_project(post_data)
         assert job == None

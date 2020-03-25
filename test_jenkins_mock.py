@@ -6,6 +6,8 @@ class Job_reconfigured_exception(Exception):
 
 class MockResponse:
 
+    server_created = False
+
     database = [
         {'type'}
 

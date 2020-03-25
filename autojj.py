@@ -4,6 +4,8 @@ import requests
 import os
 import jenkins_client
 
+TOKEN = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
+
 logging.basicConfig(level=logging.DEBUG)
 
 ACTION = 'action'
@@ -114,9 +116,8 @@ def do_jenkins_actions(project):
 # to test
 def process_event(event):
     project = get_project(event)
-    token = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
     if project:
-        jenkinsfile = get_jenkinsfile(project, token)
+        jenkinsfile = get_jenkinsfile(project, TOKEN)
         project_type = is_autojj_project(jenkinsfile, methods=['mulePipeline'])
         if jenkinsfile and project_type:
             project['project_type'] = project_type

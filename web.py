@@ -5,7 +5,7 @@ import jenkins_client
 import time
 import os
 
-VERSION = os.environ.get('VERSION', 'unknown')
+VERSION = os.environ.get('AUTOJJ_VERSION', 'unknown')
 
 app = Flask(__name__)
 
