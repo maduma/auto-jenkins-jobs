@@ -14,5 +14,5 @@ WORKDIR /home/autojj
 COPY . .
 
 USER autojj
-ENTRYPOINT ["gunicorn", "--workers 1", "--threads 1", "--bind", "0.0.0.0:5000", "web:app"]
+ENTRYPOINT ["gunicorn", "--workers", "1", "--threads", "1", "--bind", "0.0.0.0:5000", "web:app"]
 EXPOSE 5000

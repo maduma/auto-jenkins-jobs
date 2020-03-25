@@ -4,3 +4,5 @@ sandbox.py
 __pycache__/
 repository_update_event2.json
 start-gunicorn.sh
+start.sh
+docker-compose.yml
