@@ -3,10 +3,13 @@ import jenkins
 import os
 import xml.etree.ElementTree as ET
 import re
+import logging
 
 JENKINS_SERVER = os.environ.get('JENKINS_SERVER', 'unknown')
 JENKINS_USERNAME = os.environ.get('JENKINS_USERNAME', 'unknown')
 JENKINS_PASSWORD = os.environ.get('JENKINS_PASSWORD', 'unknown')
+
+logging.basicConfig(level=logging.DEBUG)
 
 # need mock to test
 def is_jenkins_online():
@@ -87,6 +90,7 @@ def update_job(project):
     server.reconfig_job(project['name'], xml)
 
 def create_folder(folder_name):
+    logging.debug('create folder %s' % folder_name)
     server = jenkins_connect()
     with open('templates/folder.xml') as f:
         folder_xml = f.read()
