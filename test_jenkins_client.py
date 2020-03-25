@@ -16,16 +16,16 @@ def test_is_jenkins_online_good():
 def test_is_up_to_date_good():
     with open('job_good.xml', 'r') as f:
         job_xml = f.read()
-        assert is_job_up_to_date_xml(job_xml, pipeline_type='mulePipeline') == True
+        assert is_job_up_to_date_xml(job_xml, template='test_pipeline.tmpl.xml') == True
 
 def test_is_up_to_date_old1():
     with open('job_old1.xml', 'r') as f:
         xml = f.read()
-        assert is_job_up_to_date_xml(xml, pipeline_type='mulePipeline') == False
+        assert is_job_up_to_date_xml(xml, template='test_pipeline.tmpl.xml') == False
 def test_is_up_to_date_old2():
     with open('job_old2.xml', 'r') as f:
         xml = f.read()
-        assert is_job_up_to_date_xml(xml, pipeline_type='mulePipeline') == False
+        assert is_job_up_to_date_xml(xml, template='test_pipeline.tmpl.xml') == False
 
 def test_get_description():
     with open('job_good.xml', 'r') as f:
@@ -53,7 +53,7 @@ def test_get_job_type_and_version_empty():
 
 def test_create_xml():
     project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git'}
-    xml = create_xml(project, template='templates/pipeline_test.tmpl.xml')
+    xml = create_xml(project, template='pipeline_test.tmpl.xml')
     assert xml == """<gitLabConnection></gitLabConnection>
 <url>https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git</url>
 <credentialsId>gitlab_maduma_org</credentialsId>

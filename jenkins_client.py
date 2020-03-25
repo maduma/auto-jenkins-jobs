@@ -36,9 +36,9 @@ def is_job_exists(job_name, xml_pattern):
         return xml
     return False
 
-def is_job_up_to_date_xml(jenkins_job_xml, pipeline_type='pipeline'):
+def is_job_up_to_date_xml(jenkins_job_xml, template='templates/pipeline.tmpl.xml'):
     job_version = get_job_type_and_version(get_description(jenkins_job_xml))
-    with open('templates/' + pipeline_type + '.tmpl.xml') as f:
+    with open(template) as f:
         template_xml = f.read()
         template_version = get_job_type_and_version(get_description(template_xml))
         print(job_version, template_version)
