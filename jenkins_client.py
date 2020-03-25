@@ -9,7 +9,7 @@ JENKINS_SERVER = os.environ.get('JENKINS_SERVER', 'unknown')
 JENKINS_USERNAME = os.environ.get('JENKINS_USERNAME', 'unknown')
 JENKINS_PASSWORD = os.environ.get('JENKINS_PASSWORD', 'unknown')
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 # need mock to test
 def is_jenkins_online():
@@ -80,17 +80,19 @@ def jenkins_connect():
     return jenkins.Jenkins(JENKINS_SERVER, username=JENKINS_USERNAME, password=JENKINS_PASSWORD, timeout=2)
 
 def create_job(project):
+    logging.info('create project %s' % project['name'])
     xml = create_xml(project)
     server = jenkins_connect()
     server.create_job(project['name'], xml)
 
 def update_job(project):
+    logging.info('update project %s' % project['name'])
     xml = create_xml(project)
     server = jenkins_connect()
     server.reconfig_job(project['name'], xml)
 
 def create_folder(folder_name):
-    logging.debug('create folder %s' % folder_name)
+    logging.info('create folder %s' % folder_name)
     server = jenkins_connect()
     with open('templates/folder.xml') as f:
         folder_xml = f.read()

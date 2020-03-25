@@ -6,7 +6,7 @@ import jenkins_client
 
 TOKEN = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 ACTION = 'action'
 GO_ON = 'go_on'
@@ -124,7 +124,7 @@ def process_event(event):
                 project['project_type'] = project_type
                 do_jenkins_actions(project)
             else:
-                return "Cannot find project type in Jenkinsfile"
+                return "Cannot find project type in Jenkinsfile", 200
         else:
-            return 'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
-    return "Cannot find project in the event"
+            return 'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project', 200
+    return "Cannot find project in the event", 200
