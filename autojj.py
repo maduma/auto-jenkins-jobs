@@ -110,7 +110,7 @@ def do_jenkins_actions(project):
         elif action[ACTION] == UPDATE_JOB:
             jenkins_client.update_job(project)
         elif action[ACTION] == CREATE_FOLDER:
-            name = project['name']
+            name = project['namespace']
             jenkins_client.create_folder(name)
 
 # to test !
