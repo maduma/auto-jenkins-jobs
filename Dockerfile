@@ -6,7 +6,7 @@ ENV AUTOJJ_VERSION=v0.0.1
 #ENV JENKINS_USERNAME
 #ENV JENKINS_PASSWORD
 
-COPY requirements .
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 RUN useradd -m autojj
