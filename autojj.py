@@ -113,7 +113,7 @@ def do_jenkins_actions(project):
             name = project['name']
             jenkins_client.create_folder(name)
 
-# to test
+# to test !
 def process_event(event):
     project = get_project(event)
     if project:
@@ -127,4 +127,4 @@ def process_event(event):
                 return "Cannot find project type in Jenkinsfile"
         else:
             return 'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
-    return "200 OK"
+    return "Cannot find project in the event"
