@@ -13,7 +13,7 @@
   <keepDependencies>false</keepDependencies>
   <properties>
     <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.13">
-      <gitLabConnection>maduma</gitLabConnection>
+      <gitLabConnection>aduma</gitLabConnection>
     </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>

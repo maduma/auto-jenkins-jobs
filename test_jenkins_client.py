@@ -1,6 +1,10 @@
 from jenkins_client import is_job_up_to_date_xml, get_job_type_and_version, get_description
+from jenkins_client import create_xml
+from jenkins_client import jenkins_connect, create_job, update_job, create_folder
+import jenkins
 import responses
 import pytest
+import jenkins_mock
 
 def test_is_jenkins_online_good():
     #responses.add(responses.GET, 'http://172.10.23.3/crumbIssuer/api/json')
@@ -46,3 +50,36 @@ def test_get_job_type_and_version_2():
 
 def test_get_job_type_and_version_empty():
     assert get_job_type_and_version(None) == None
+
+def test_create_xml():
+    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git'}
+    xml = create_xml(project, template='templates/pipeline_test.tmpl.xml')
+    assert xml == """<gitLabConnection></gitLabConnection>
+<url>https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git</url>
+<credentialsId>gitlab_maduma_org</credentialsId>
+"""
+
+def test_jenkins_connect(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", jenkins_mock.MockResponse)
+    assert jenkins_connect().server_created
+
+def test_jenkins_create_job(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", jenkins_mock.MockResponse)
+    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'pompiste'}
+    with pytest.raises(jenkins_mock.Job_created_exception) as ex:
+        create_job(project)
+    assert str(ex.value) == 'pompiste'
+
+def test_jenkins_update_job(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", jenkins_mock.MockResponse)
+    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'flutiste'}
+    with pytest.raises(jenkins_mock.Job_reconfigured_exception) as ex:
+        update_job(project)
+    assert str(ex.value) == 'flutiste'
+
+def test_jenkins_created_folder(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", jenkins_mock.MockResponse)
+    with pytest.raises(jenkins_mock.Job_created_exception) as ex:
+        create_folder('mule')
+    assert str(ex.value) == 'mule'
+   

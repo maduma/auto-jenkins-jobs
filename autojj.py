@@ -60,10 +60,11 @@ def is_autojj_project(jenkinsfile, methods):
     for word in methods:
         if not re.match(r'\w+', word):
             return False
-        regex = r'(\s|^){}(\s|\()'.format(word)
+        regex = r'(\s|^)({})(\s|\()'.format(word)
         pattern = re.compile(regex)
-        if pattern.search(jenkinsfile):
-            return True
+        found = pattern.search(jenkinsfile)
+        if found:
+            return found[2]
     return False
 
 def get_raw_gitlab_jenkinsfile_url(project):
@@ -116,7 +117,9 @@ def process_event(event):
     token = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
     if project:
         jenkinsfile = get_jenkinsfile(project, token)
-        if jenkinsfile and is_autojj_project(jenkinsfile, methods=['mulePipeline']):
+        project_type = is_autojj_project(jenkinsfile, methods=['mulePipeline'])
+        if jenkinsfile and project_type:
+            project['project_type'] = project_type
             do_jenkins_actions(project)
         else:
             return 'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'

@@ -1,0 +1,3 @@
+<gitLabConnection>{gitlab_connection}</gitLabConnection>
+<url>{git_http_url}</url>
+<credentialsId>{git_creds_id}</credentialsId>

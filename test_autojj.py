@@ -60,7 +60,7 @@ mulePipeline([
     registry: "cicdships.azurecr.io",
 ])
 """
-    assert is_autojj_project(jenkinsfile, methods=['mulePipeline'])
+    assert is_autojj_project(jenkinsfile, methods=['mulePipeline']) == 'mulePipeline'
 
 def test_isAutoJJProject_mule_project2():
     jenkinsfile="""
@@ -69,19 +69,19 @@ def test_isAutoJJProject_mule_project2():
     assert is_autojj_project(jenkinsfile, methods=[
         'phpPipeline',
         'mulePipeline',
-    ])
+    ]) == 'mulePipeline'
 
 def test_isAutoJJProject_mule_project_3():
     jenkinsfile="""
     mulePipeline()
 """
-    assert is_autojj_project(jenkinsfile, methods=['mulePipeline'])
+    assert is_autojj_project(jenkinsfile, methods=['mulePipeline']) == 'mulePipeline'
 
 def test_isAutoJJProject_mule_project_4():
     jenkinsfile="""
     phpPipeline()
 """
-    assert is_autojj_project(jenkinsfile, methods=['phpPipeline'])
+    assert is_autojj_project(jenkinsfile, methods=['phpPipeline']) == 'phpPipeline'
 
 def test_isAutoJJProject_mule_project_bad1():
     jenkinsfile="""

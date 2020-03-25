@@ -36,7 +36,7 @@ def is_job_exists(job_name, xml_pattern):
         return xml
     return False
 
-def is_job_up_to_date_xml(jenkins_job_xml, pipeline_type='mulePipeline'):
+def is_job_up_to_date_xml(jenkins_job_xml, pipeline_type='pipeline'):
     job_version = get_job_type_and_version(get_description(jenkins_job_xml))
     with open('templates/' + pipeline_type + '.tmpl.xml') as f:
         template_xml = f.read()
@@ -63,21 +63,31 @@ def get_job_type_and_version(description):
         return {'type': match[1], 'version': match[2]}
     return None
 
-# need mock to test
+def create_xml(project, template='templates/pipeline.tmpl.xml'):
+    with open(template) as f:
+        xml = f.read()
+        xml = xml.format(
+            git_http_url=project['git_url'],
+            git_creds_id='gitlab_maduma_org',
+            gitlab_connection='',
+        )
+        return xml
+
 def jenkins_connect():
     return jenkins.Jenkins(JENKINS_SERVER, username=JENKINS_USERNAME, password=JENKINS_PASSWORD, timeout=2)
 
-# need mock to test
 def create_job(project):
+    xml = create_xml(project)
     server = jenkins_connect()
-    pass
+    server.create_job(project['name'], xml)
 
-# need mock to test
 def update_job(project):
+    xml = create_xml(project)
     server = jenkins_connect()
-    pass
+    server.reconfig_job(project['name'], xml)
 
-# need mock to test
 def create_folder(folder_name):
-    folder_xml = ''
-    create_job(folder_name, folder_xml)
+    server = jenkins_connect()
+    with open('templates/folder.xml') as f:
+        folder_xml = f.read()
+        server.create_job(folder_name, folder_xml)
