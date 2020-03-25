@@ -118,10 +118,13 @@ def process_event(event):
     project = get_project(event)
     if project:
         jenkinsfile = get_jenkinsfile(project, TOKEN)
-        project_type = is_autojj_project(jenkinsfile, methods=['mulePipeline'])
-        if jenkinsfile and project_type:
-            project['project_type'] = project_type
-            do_jenkins_actions(project)
+        if jenkinsfile:
+            project_type = is_autojj_project(jenkinsfile, methods=['mulePipeline'])
+            if project_type:
+                project['project_type'] = project_type
+                do_jenkins_actions(project)
+            else:
+                return "Cannot find project type in Jenkinsfile"
         else:
             return 'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project'
     return "200 OK"
