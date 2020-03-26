@@ -104,14 +104,19 @@ def actions(project, action={ACTION: NOP, GO_ON: True}):
 
 # to test
 def do_jenkins_actions(project):
+    logs = []
     for action in actions(project):
         if action[ACTION] == CREATE_JOB:
             jenkins_client.create_job(project)
+            log.append['Project Created']
         elif action[ACTION] == UPDATE_JOB:
             jenkins_client.update_job(project)
+            log.append['Project Updated']
         elif action[ACTION] == CREATE_FOLDER:
             name = project['namespace']
             jenkins_client.create_folder(name)
+            log.append['Folder Created']
+    return ', '.join(logs)
 
 # to test !
 def process_event(event):
@@ -122,7 +127,8 @@ def process_event(event):
             project_type = is_autojj_project(jenkinsfile, methods=['mulePipeline'])
             if project_type:
                 project['project_type'] = project_type
-                do_jenkins_actions(project)
+                logs = do_jenkins_actions(project)
+                return "Event processed: " + logs
             else:
                 return "Cannot find project type in Jenkinsfile", 200
         else:
