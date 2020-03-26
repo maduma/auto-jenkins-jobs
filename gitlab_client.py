@@ -50,7 +50,7 @@ def install_jenkins_hook(project, token=GITLAB_TOKEN, jenkins_url=JENKINS_URL):
     )
     headers = {'PRIVATE-TOKEN': token}
     resp = requests.post(url, headers=headers, json=data)
-    if resp.status_code == 200:
+    if resp.status_code == 201:
         logging.info("new hook installed")
         return True
     logging.error("Cannot install hook: " + resp.reason)

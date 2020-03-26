@@ -35,7 +35,7 @@ def test_is_hook_exists():
 
 @responses.activate
 def test_install_jenkins_hook():
-    responses.add(responses.POST, 'https://gitlab.maduma.org/api/v4/projects/7/hooks')
+    responses.add(responses.POST, 'https://gitlab.maduma.org/api/v4/projects/7/hooks', status=201)
     project = {
         'id': 7,
         'git_url': 'https://gitlab.maduma.org/maduma/pompiste.git',
