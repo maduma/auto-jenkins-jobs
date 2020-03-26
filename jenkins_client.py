@@ -97,3 +97,8 @@ def create_folder(folder_name):
     with open('templates/folder.xml') as f:
         folder_xml = f.read()
         server.create_job(folder_name, folder_xml)
+
+def build_job(job_name):
+    logging.info('build job %s' % job_name)
+    server = jenkins_connect()
+    server.build_job(job_name)

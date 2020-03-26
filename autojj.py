@@ -14,6 +14,7 @@ NOP = None
 CREATE_JOB = 'create_job'
 UPDATE_JOB = 'update_job'
 CREATE_FOLDER = 'create_folder'
+BUILD_JOB = 'build_job'
 
 def next_action(job_exists, folder_exists, job_up_to_date=False):
     action = {}
@@ -107,7 +108,9 @@ def do_jenkins_actions(project):
     logs = []
     for action in actions(project):
         if action[ACTION] == CREATE_JOB:
+            name = project['namespace']
             jenkins_client.create_job(project)
+            jenkins_client.build_job(name)
             logs.append('Project Created')
         elif action[ACTION] == UPDATE_JOB:
             jenkins_client.update_job(project)
@@ -116,6 +119,10 @@ def do_jenkins_actions(project):
             name = project['namespace']
             jenkins_client.create_folder(name)
             logs.append('Folder Created')
+        elif action[ACTION] == BUILD_JOB:
+            name = project['namespace']
+            jenkins_client.build_job(name)
+            logs.append('Start Job Build')
     return ', '.join(logs)
 
 # to test !

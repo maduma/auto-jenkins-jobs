@@ -1,6 +1,6 @@
 from jenkins_client import is_job_up_to_date_xml, get_job_type_and_version, get_description
 from jenkins_client import create_xml
-from jenkins_client import jenkins_connect, create_job, update_job, create_folder
+from jenkins_client import jenkins_connect, create_job, update_job, create_folder, build_job
 import jenkins
 import responses
 import pytest
@@ -81,5 +81,11 @@ def test_jenkins_created_folder(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     with pytest.raises(test_jenkins_mock.Job_created_exception) as ex:
         create_folder('mule')
+    assert str(ex.value) == 'mule'
+
+def test_jenkins_build_job(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
+    with pytest.raises(test_jenkins_mock.Job_build_exception) as ex:
+        build_job('mule')
     assert str(ex.value) == 'mule'
    

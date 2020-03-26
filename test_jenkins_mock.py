@@ -4,6 +4,9 @@ class Job_created_exception(Exception):
 class Job_reconfigured_exception(Exception):
     pass
 
+class Job_build_exception(Exception):
+    pass
+
 class MockResponse:
 
     server_created = False
@@ -22,3 +25,6 @@ class MockResponse:
 
     def reconfig_job(self, name, xml):
         raise Job_reconfigured_exception(name)
+
+    def build_job(self, name):
+        raise Job_build_exception(name)
