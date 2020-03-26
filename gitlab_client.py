@@ -5,7 +5,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-JENKINS_URL = os.environ.get('JENKINS_URL', 'https://jenkins.maduma.org')
+JENKINS_URL = os.environ.get('JENKINS_SERVER', 'https://jenkins.maduma.org')
 GITLAB_TOKEN = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
 
 def get_all_hooks(project, token=GITLAB_TOKEN):
@@ -18,7 +18,8 @@ def get_all_hooks(project, token=GITLAB_TOKEN):
     resp = requests.get(url, headers=headers, timeout=2)
     if resp.status_code == 200:
         return resp.json()
-    logging.error(resp.reason)
+    logging.error("Cannot get all hooks: " + resp.reason)
+    logging.error("url: {url}, token: {token}".format(url=url, token=token))
     return None
 
 def is_hook_exists(hooks, project, jenkins_url=JENKINS_URL):
