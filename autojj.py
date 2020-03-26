@@ -108,10 +108,10 @@ def do_jenkins_actions(project):
     logs = []
     for action in actions(project):
         if action[ACTION] == CREATE_JOB:
-            name = project['namespace']
+            name = project['name']
             jenkins_client.create_job(project)
             jenkins_client.build_job(name)
-            logs.append('Project Created')
+            logs.append('Project Created and Build Started')
         elif action[ACTION] == UPDATE_JOB:
             jenkins_client.update_job(project)
             logs.append('Project Updated')
