@@ -3,6 +3,8 @@ import requests
 
 import logging
 
+logging.basicConfig(level=logging.INFO)
+
 JENKINS_URL = os.environ.get('JENKINS_URL', 'https://jenkins.maduma.org')
 GITLAB_TOKEN = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
 
@@ -16,6 +18,7 @@ def get_all_hooks(project, token=GITLAB_TOKEN):
     resp = requests.get(url, headers=headers, timeout=2)
     if resp.status_code == 200:
         return resp.json()
+    logging.error(resp.reason)
     return None
 
 def is_hook_exists(hooks, project, jenkins_url=JENKINS_URL):
@@ -26,6 +29,7 @@ def is_hook_exists(hooks, project, jenkins_url=JENKINS_URL):
         if hook['url'] == jenkins_hook_url and hook['id'] == project['id']:
             logging.info("hook already installed")
             return True
+    logging.info("hook not already installed")
     return False
 
 def is_hook_installed(project, jenkins_url=JENKINS_URL):
