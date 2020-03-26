@@ -3,6 +3,7 @@ import re
 import requests
 import os
 import jenkins_client
+import gitlab_client
 
 TOKEN = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
 
@@ -111,7 +112,9 @@ def do_jenkins_actions(project):
             name = project['name']
             jenkins_client.create_job(project)
             jenkins_client.build_job(name)
-            logs.append('Project Created and Build Started')
+            if not gitlab_client.is_hook_installed(project):
+                gitlab_client.install_jenkins_hook(project)
+            logs.append('Project Created, gitlab hook installed and Build Started')
         elif action[ACTION] == UPDATE_JOB:
             jenkins_client.update_job(project)
             logs.append('Project Updated')
