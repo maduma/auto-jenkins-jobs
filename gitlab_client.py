@@ -19,7 +19,6 @@ def get_all_hooks(project, token=GITLAB_TOKEN):
     if resp.status_code == 200:
         return resp.json()
     logging.error("Cannot get all hooks: " + resp.reason)
-    logging.error("url: {url}, token: {token}".format(url=url, token=token))
     return None
 
 def is_hook_exists(hooks, project, jenkins_url=JENKINS_URL):
@@ -52,5 +51,7 @@ def install_jenkins_hook(project, token=GITLAB_TOKEN, jenkins_url=JENKINS_URL):
     headers = {'PRIVATE-TOKEN': token}
     resp = requests.post(url, headers=headers, json=data)
     if resp.status_code == 200:
+        logging.info("new hook installed")
         return True
+    logging.error("Cannot install hook: " + resp.reason)
     return False
