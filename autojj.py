@@ -108,14 +108,14 @@ def do_jenkins_actions(project):
     for action in actions(project):
         if action[ACTION] == CREATE_JOB:
             jenkins_client.create_job(project)
-            log.append['Project Created']
+            logs.append('Project Created')
         elif action[ACTION] == UPDATE_JOB:
             jenkins_client.update_job(project)
-            log.append['Project Updated']
+            logs.append('Project Updated')
         elif action[ACTION] == CREATE_FOLDER:
             name = project['namespace']
             jenkins_client.create_folder(name)
-            log.append['Folder Created']
+            logs.append('Folder Created')
     return ', '.join(logs)
 
 # to test !
