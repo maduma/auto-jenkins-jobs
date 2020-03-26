@@ -26,6 +26,12 @@ def is_hook_exists(hooks, project, jenkins_url=JENKINS_URL):
         hooks = []
     jenkins_hook_url = jenkins_url + '/project/' + project['name']
     for hook in hooks:
+        logging.info("{hook_url}/{j_url} {hook_id}/{p_id}".format(
+            hook_url = hook['url'],
+            j_url = jenkins_hook_url,
+            hook_id = hook['id'],
+            p_id = project['id'],
+        ))
         if hook['url'] == jenkins_hook_url and hook['id'] == project['id']:
             logging.info("hook already installed")
             return True
