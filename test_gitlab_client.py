@@ -20,13 +20,13 @@ def test_is_hook_exists():
         'name': 'maduma/pompiste',
     }
     hooks = [
-        {'url': 'https://jenkins.maduma.org/project/web/dentiste', "id": 3},
-        {'url': 'https://jenkins.maduma.org/project/maduma/pompiste', "id": 7},
+        {'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 3},
+        {'url': 'https://jenkins.maduma.org/project/maduma/pompiste', "project_id": 7},
     ]
     assert is_hook_exists(hooks, project, jenkins_url='https://jenkins.maduma.org')
     hooks = [
-        {'url': 'https://jenkins.maduma.org/project/web/dentiste', "id": 4},
-        {'url': 'https://jenkins.maduma.org/project/maduma/fleuriste', "id": 6},
+        {'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 4},
+        {'url': 'https://jenkins.maduma.org/project/maduma/fleuriste', "project_id": 6},
     ]
     assert not is_hook_exists(hooks, project, jenkins_url='https://jenkins.maduma.org')
 
