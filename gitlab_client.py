@@ -19,6 +19,8 @@ def get_all_hooks(project, token=GITLAB_TOKEN):
     return None
 
 def is_hook_exists(hooks, project, jenkins_url=JENKINS_URL):
+    if not hooks:
+        hooks = []
     jenkins_hook_url = jenkins_url + '/project/' + project['name']
     for hook in hooks:
         if hook['url'] == jenkins_hook_url and hook['id'] == project['id']:

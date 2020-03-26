@@ -30,6 +30,9 @@ def test_is_hook_exists():
     ]
     assert not is_hook_exists(hooks, project, jenkins_url='https://jenkins.maduma.org')
 
+    hooks = None 
+    assert not is_hook_exists(hooks, project, jenkins_url='https://jenkins.maduma.org')
+
 @responses.activate
 def test_install_jenkins_hook():
     responses.add(responses.POST, 'https://gitlab.maduma.org/api/v4/projects/7/hooks')
