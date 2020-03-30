@@ -52,9 +52,10 @@ def test_get_job_type_and_version_empty():
     assert get_job_type_and_version(None) == None
 
 def test_create_xml():
-    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git'}
+    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'short_name': 'dentiste'}
     xml = create_xml(project, template='test_pipeline_short.tmpl.xml')
     assert xml == """<gitLabConnection></gitLabConnection>
+<name>dentiste</name>
 <url>https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git</url>
 <credentialsId>gitlab_maduma_org</credentialsId>
 """
@@ -65,14 +66,14 @@ def test_jenkins_connect(monkeypatch):
 
 def test_jenkins_create_job(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'pompiste'}
+    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'pompiste', 'short_name': 'pompiste'}
     with pytest.raises(test_jenkins_mock.Job_created_exception) as ex:
         create_job(project)
     assert str(ex.value) == 'pompiste'
 
 def test_jenkins_update_job(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'flutiste'}
+    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'flutiste', 'short_name': 'pompiste'}
     with pytest.raises(test_jenkins_mock.Job_reconfigured_exception) as ex:
         update_job(project)
     assert str(ex.value) == 'flutiste'

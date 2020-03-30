@@ -51,13 +51,11 @@ def get_project(post_data):
         return None
 
     namespace = post_data['project']['namespace']
-    name = '/'.join([
-        namespace,
-        post_data['project']['name'],
-        ])
+    short_name = post_data['project']['name']
+    name = '/'.join([namespace, short_name])
     git_url = post_data['project']['git_http_url']
     id = post_data['project_id']
-    return { "id": id, "name": name, 'git_url': git_url , "namespace": namespace}
+    return { "id": id, "name": name, 'git_url': git_url , "namespace": namespace, "short_name": short_name }
 
 def is_autojj_project(jenkinsfile, methods):
     # look for groovy method

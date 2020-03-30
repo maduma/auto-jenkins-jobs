@@ -70,6 +70,7 @@ def create_xml(project, template='templates/pipeline.tmpl.xml'):
     with open(template) as f:
         xml = f.read()
         xml = xml.format(
+            job_name=project['short_name'],
             git_http_url=project['git_url'],
             git_creds_id='gitlab_maduma_org',
             gitlab_connection='',
