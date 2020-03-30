@@ -102,4 +102,4 @@ def create_folder(folder_name):
 def build_job(job_name):
     logging.info('build job %s' % job_name)
     server = jenkins_connect()
-    server.build_job(job_name)
+    server.build_job(job_name, parameters={'DEPLOY_TO': 'tst'})

@@ -26,5 +26,5 @@ class MockResponse:
     def reconfig_job(self, name, xml):
         raise Job_reconfigured_exception(name)
 
-    def build_job(self, name):
+    def build_job(self, name, parameters=None):
         raise Job_build_exception(name)
