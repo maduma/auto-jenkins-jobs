@@ -17,7 +17,7 @@ def is_jenkins_online():
         server = jenkins_connect()
         id = server.get_whoami().get('id', None)
         version = server.get_version()
-        return {'version': version, 'username': id}
+        return {'status': 'online', 'version': version}
     except:
         return False
 

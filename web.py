@@ -23,4 +23,4 @@ def health():
     if jenkins_status:
         return {'status': 'pass', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status}
     else:
-        return {'status': 'No connection to Jenkins', 'version': settings.AUTOJJ_VERSION, 'jenkins': 'unknown'}, 503
+        return {'status': 'Jenkins not online', 'version': settings.AUTOJJ_VERSION, 'jenkins': 'No connection'}, 503
