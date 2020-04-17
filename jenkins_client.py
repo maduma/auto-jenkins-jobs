@@ -25,9 +25,9 @@ def is_pipeline_exists(job_name):
     pattern =  '<flow-definition plugin="workflow-job@'
     return is_job_exists(job_name, pattern)
 
-def is_folder_exists(floder_name):
+def is_folder_exists(folder_name):
     pattern = '<com.cloudbees.hudson.plugins.folder.Folder plugin="cloudbees-folder@'
-    return is_job_exists(floder_name, pattern)
+    return is_job_exists(folder_name, pattern)
 
 # need mock to test
 def is_job_exists(job_name, xml_pattern):

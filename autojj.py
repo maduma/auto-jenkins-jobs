@@ -4,8 +4,7 @@ import requests
 import os
 import jenkins_client
 import gitlab_client
-
-TOKEN = os.environ.get('GIT_PRIVATE_TOKEN','unknown')
+import settings
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,6 +15,7 @@ CREATE_JOB = 'create_job'
 UPDATE_JOB = 'update_job'
 CREATE_FOLDER = 'create_folder'
 BUILD_JOB = 'build_job'
+
 
 def next_action(job_exists, folder_exists, job_up_to_date=False):
     action = {}
@@ -43,6 +43,26 @@ def next_action(job_exists, folder_exists, job_up_to_date=False):
 
     return action
 
+class Project:
+    def __repr__(self):
+        return """
+        Project
+        -------
+        id:           {id}
+        full_name:    {full_name}
+        folder:       {folder}
+        short_name:   {short_name}
+        git_http_url: {git_http_url}
+        git_ssh_url:  {git_ssh_url}
+        -------
+        """.format(
+            id = self.id,
+            full_name = self.full_name,
+            folder = self.folder,
+            short_name = self.short_name,
+            git_http_url = self.git_http_url,
+            git_ssh_url = self.git_ssh_url,
+            )
 
 def get_project(post_data):
     if not post_data or not post_data.get('event_name') == "repository_update":
@@ -51,18 +71,30 @@ def get_project(post_data):
         return None
 
     namespace = post_data['project']['namespace']
-    short_name = post_data['project']['name']
-    name = '/'.join([namespace, short_name])
+    folder, short_name = post_data['project']['path_with_namespace'].split('/')
+    name = post_data['project']['path_with_namespace']
+    full_name = post_data['project']['path_with_namespace']
     git_url = post_data['project']['git_http_url']
     id = post_data['project_id']
-    return { "id": id, "name": name, 'git_url': git_url , "namespace": namespace, "short_name": short_name }
+    
+    project = Project()
+    project.id = post_data['project_id']
+    project.full_name = post_data['project']['path_with_namespace']
+    project.folder, project.short_name = project.full_name.split('/')
+    project.git_http_url = post_data['project']['git_http_url']
+    project.git_ssh_url = post_data['project']['git_ssh_url']
 
-def is_autojj_project(jenkinsfile, methods):
+    print(project)
+    
+    return { "id": id, "name": name, 'folder': folder, 'git_url': git_url , "namespace": namespace, "short_name": short_name , "full_name": full_name }
+
+def is_autojj_project(jenkinsfile, types):
     # look for groovy method
-    for word in methods:
-        if not re.match(r'\w+', word):
+    for type in types:
+        if not re.match(r'\w+', type):
+            logging.error('Project type: %s is not a word' % type)
             return False
-        regex = r'(\s|^)({})(\s|\()'.format(word)
+        regex = r'(\s|^)({})(\s|\()'.format(type)
         pattern = re.compile(regex)
         found = pattern.search(jenkinsfile)
         if found:
@@ -76,8 +108,8 @@ def get_raw_gitlab_jenkinsfile_url(project):
     return base + '/api/v4/projects/{}/repository/files/Jenkinsfile/raw?ref=master'.format(project_id)
 
 def get_jenkinsfile(project, token):
-    url = get_raw_gitlab_jenkinsfile_url(project)
-    resp = requests.get(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
+    api_url = get_raw_gitlab_jenkinsfile_url(project)
+    resp = requests.get(api_url, headers={'PRIVATE-TOKEN': token}, timeout=2)
     if resp.status_code == 200:
         return resp.text
     else:
@@ -130,15 +162,15 @@ def do_jenkins_actions(project):
 def process_event(event):
     project = get_project(event)
     if project:
-        jenkinsfile = get_jenkinsfile(project, TOKEN)
+        jenkinsfile = get_jenkinsfile(project, settings.GITLAB_PRIVATE_TOKEN)
         if jenkinsfile:
-            project_type = is_autojj_project(jenkinsfile, methods=['mulePipeline'])
+            project_type = is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES)
             if project_type:
                 project['project_type'] = project_type
                 logs = do_jenkins_actions(project)
                 return "Event processed: " + logs
             else:
-                return "Cannot find project type in Jenkinsfile", 200
+                return "Cannot detect project type in Jenkinsfile", 200
         else:
-            return 'Cannot access Jenkinsfile (do not exists?) or is not and Auto Jenkins Project', 200
-    return "Cannot find project in the event", 200
+            return 'Cannot access Jenkinsfile (do not exists)', 200
+    return "Cannot find project in the gitlab event", 200

@@ -1,11 +1,10 @@
 from flask import Flask, request
-import autojj
-import jenkins_client
-
 import time
 import os
 
-VERSION = os.environ.get('AUTOJJ_VERSION', 'unknown')
+import autojj
+import jenkins_client
+import settings
 
 app = Flask(__name__)
 
@@ -22,6 +21,6 @@ def event():
 def health():
     jenkins_status = jenkins_client.is_jenkins_online()
     if jenkins_status:
-        return {'status': 'pass', 'version': VERSION, 'jenkins': jenkins_status}
+        return {'status': 'pass', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status}
     else:
-        return {'status': 'No connection to Jenkins', 'version': VERSION, 'jenkins': 'unknown'}, 503
+        return {'status': 'No connection to Jenkins', 'version': settings.AUTOJJ_VERSION, 'jenkins': 'unknown'}, 503

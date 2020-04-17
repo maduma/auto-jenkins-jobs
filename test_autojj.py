@@ -35,7 +35,14 @@ def test_get_project_repository_update_event():
     with open('test_repository_update_event.json', 'r') as f:
         post_data = json.load(f)
         job = get_project(post_data)
-        assert job == { "id": 6, "name": "maduma/toto", "git_url": "https://gitlab.maduma.org/maduma/toto.git" , "namespace": "maduma", "short_name": "toto"}
+        assert job == {
+            "id": 6, "name": "maduma/toto",
+            "folder": "maduma",
+            "git_url": "https://gitlab.maduma.org/maduma/toto.git",
+             "namespace": "maduma",
+             "short_name": "toto",
+             "full_name" : "maduma/toto",
+             }
 
 def test_get_project_other_event():
     with open('test_project_destroy_event.json', 'r') as f:
@@ -60,13 +67,13 @@ mulePipeline([
     registry: "cicdships.azurecr.io",
 ])
 """
-    assert is_autojj_project(jenkinsfile, methods=['mulePipeline']) == 'mulePipeline'
+    assert is_autojj_project(jenkinsfile, types=['mulePipeline']) == 'mulePipeline'
 
 def test_isAutoJJProject_mule_project2():
     jenkinsfile="""
     mulePipeline registry: "cicdships.azurecr.io"
 """
-    assert is_autojj_project(jenkinsfile, methods=[
+    assert is_autojj_project(jenkinsfile, types=[
         'phpPipeline',
         'mulePipeline',
     ]) == 'mulePipeline'
@@ -75,13 +82,13 @@ def test_isAutoJJProject_mule_project_3():
     jenkinsfile="""
     mulePipeline()
 """
-    assert is_autojj_project(jenkinsfile, methods=['mulePipeline']) == 'mulePipeline'
+    assert is_autojj_project(jenkinsfile, types=['mulePipeline']) == 'mulePipeline'
 
 def test_isAutoJJProject_mule_project_4():
     jenkinsfile="""
     phpPipeline()
 """
-    assert is_autojj_project(jenkinsfile, methods=['phpPipeline']) == 'phpPipeline'
+    assert is_autojj_project(jenkinsfile, types=['phpPipeline']) == 'phpPipeline'
 
 def test_isAutoJJProject_mule_project_bad1():
     jenkinsfile="""
@@ -89,14 +96,14 @@ examulePipelinetrop([
     registry: "cicdships.azurecr.io",
 ])
 """
-    assert not is_autojj_project(jenkinsfile, methods=['phpPipeline'])
+    assert not is_autojj_project(jenkinsfile, types=['phpPipeline'])
 
 def test_isAutoJJProject_mule_project_bad2():
     jenkinsfile="""
     pipeline()
 """
     # check that method are correct (only alphanumeric char)
-    assert not is_autojj_project(jenkinsfile, methods=['pipeline-2'])
+    assert not is_autojj_project(jenkinsfile, types=['pipeline-2'])
 
 def test_get_raw_jenkinsfile_url():
     project = {'id': 6, 'git_url': 'https://gitlab.maduma.org/maduma/pompiste.git', 'name': 'maduma/pompiste'}
