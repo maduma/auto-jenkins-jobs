@@ -64,31 +64,34 @@ class Project:
             git_ssh_url = self.git_ssh_url,
             )
 
-def get_project(post_data):
-    if not post_data or not post_data.get('event_name') == "repository_update":
-        logging.error('Cannot get job name from post data')
-        logging.debug(f'Bad input: {post_data}')
-        return None
+def get_project(event):
 
-    namespace = post_data['project']['namespace']
-    folder, short_name = post_data['project']['path_with_namespace'].split('/')
-    name = post_data['project']['path_with_namespace']
-    full_name = post_data['project']['path_with_namespace']
-    git_url = post_data['project']['git_http_url']
-    id = post_data['project_id']
+    namespace = event['project']['namespace']
+    folder, short_name = event['project']['path_with_namespace'].split('/')
+    name = event['project']['path_with_namespace']
+    full_name = event['project']['path_with_namespace']
+    git_url = event['project']['git_http_url']
+    id = event['project_id']
     
     project = Project()
-    project.id = post_data['project_id']
-    project.full_name = post_data['project']['path_with_namespace']
+    project.id = event['project_id']
+    project.full_name = event['project']['path_with_namespace']
     project.folder, project.short_name = project.full_name.split('/')
-    project.git_http_url = post_data['project']['git_http_url']
-    project.git_ssh_url = post_data['project']['git_ssh_url']
+    project.git_http_url = event['project']['git_http_url']
+    project.git_ssh_url = event['project']['git_ssh_url']
+
+    old_type_project =  { "id": id, "name": name, 'folder': folder, 'git_url': git_url , "namespace": namespace, "short_name": short_name , "full_name": full_name }
+
+    jenkinsfile = get_jenkinsfile(old_type_project, settings.GITLAB_PRIVATE_TOKEN)
+    project.pipeline = is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES)
 
     print(project)
     
-    return { "id": id, "name": name, 'folder': folder, 'git_url': git_url , "namespace": namespace, "short_name": short_name , "full_name": full_name }
+    return old_type_project
 
 def is_autojj_project(jenkinsfile, types):
+    if not jenkinsfile:
+        return False
     # look for groovy method
     for type in types:
         if not re.match(r'\w+', type):

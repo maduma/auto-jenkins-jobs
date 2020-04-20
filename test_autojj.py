@@ -31,7 +31,8 @@ def test_action_bad_input(): # job exists but not the folder !
     rest_api = next_action(job_exists=True, folder_exists=False, job_up_to_date=True)
     assert rest_api == { ACTION: NOP, GO_ON: False }
 
-def test_get_project_repository_update_event():
+def test_get_project_repository_update_event(monkeypatch):
+    monkeypatch.setattr(autojj, 'get_jenkinsfile', lambda x, y: None)
     with open('test_repository_update_event.json', 'r') as f:
         post_data = json.load(f)
         job = get_project(post_data)
@@ -43,22 +44,6 @@ def test_get_project_repository_update_event():
              "short_name": "toto",
              "full_name" : "maduma/toto",
              }
-
-def test_get_project_other_event():
-    with open('test_project_destroy_event.json', 'r') as f:
-        post_data = json.load(f)
-        job = get_project(post_data)
-        assert job == None
-
-def test_get_project_bad_data():
-    with open('test_bad_data.json', 'r') as f:
-        post_data = json.load(f)
-        job = get_project(post_data)
-        assert job == None
-
-def test_get_project_no_data():
-    job = get_project(None)
-    assert job == None
 
 def test_isAutoJJProject_mule_project1():
     jenkinsfile="""
@@ -104,6 +89,14 @@ def test_isAutoJJProject_mule_project_bad2():
 """
     # check that method are correct (only alphanumeric char)
     assert not is_autojj_project(jenkinsfile, types=['pipeline-2'])
+
+def test_isAutoJJProject_bad3():
+    jenkinsfile=None
+    assert not is_autojj_project(jenkinsfile, types=['otherPipeline'])
+
+def test_isAutoJJProject_bad4():
+    jenkinsfile=''
+    assert not is_autojj_project(jenkinsfile, types=['otherPipeline'])
 
 def test_get_raw_jenkinsfile_url():
     project = {'id': 6, 'git_url': 'https://gitlab.maduma.org/maduma/pompiste.git', 'name': 'maduma/pompiste'}
