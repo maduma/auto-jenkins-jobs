@@ -5,6 +5,7 @@ import os
 import jenkins_client
 import gitlab_client
 import settings
+import collections
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,6 +17,7 @@ UPDATE_JOB = 'update_job'
 CREATE_FOLDER = 'create_folder'
 BUILD_JOB = 'build_job'
 
+Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline')
 
 def next_action(job_exists, folder_exists, job_up_to_date=False):
     action = {}
@@ -43,51 +45,31 @@ def next_action(job_exists, folder_exists, job_up_to_date=False):
 
     return action
 
-class Project:
-    def __repr__(self):
-        return """
-        Project
-        -------
-        id:           {id}
-        full_name:    {full_name}
-        folder:       {folder}
-        short_name:   {short_name}
-        git_http_url: {git_http_url}
-        git_ssh_url:  {git_ssh_url}
-        -------
-        """.format(
-            id = self.id,
-            full_name = self.full_name,
-            folder = self.folder,
-            short_name = self.short_name,
-            git_http_url = self.git_http_url,
-            git_ssh_url = self.git_ssh_url,
-            )
+def parse_event(event):
 
-def get_project(event):
-
-    namespace = event['project']['namespace']
-    folder, short_name = event['project']['path_with_namespace'].split('/')
-    name = event['project']['path_with_namespace']
+    #namespace = event['project']['namespace']
+    #name = event['project']['path_with_namespace']
+    #git_url = event['project']['git_http_url']
     full_name = event['project']['path_with_namespace']
-    git_url = event['project']['git_http_url']
-    id = event['project_id']
+    folder, short_name = full_name.split('/')
+    project_id = event['project_id']
+    git_http_url = event['project']['git_http_url']
+
+    api_url = get_raw_gitlab_jenkinsfile_url(project_id, git_http_url)
+    jenkinsfile = get_jenkinsfile(api_url, settings.GITLAB_PRIVATE_TOKEN)
+    pipeline = is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES)
     
-    project = Project()
-    project.id = event['project_id']
-    project.full_name = event['project']['path_with_namespace']
-    project.folder, project.short_name = project.full_name.split('/')
-    project.git_http_url = event['project']['git_http_url']
-    project.git_ssh_url = event['project']['git_ssh_url']
+    project = Project(
+      id = project_id,
+      full_name = full_name,
+      folder = folder,
+      short_name = short_name,
+      git_http_url = git_http_url,
+      pipeline = pipeline,
+    )
 
-    old_type_project =  { "id": id, "name": name, 'folder': folder, 'git_url': git_url , "namespace": namespace, "short_name": short_name , "full_name": full_name }
-
-    jenkinsfile = get_jenkinsfile(old_type_project, settings.GITLAB_PRIVATE_TOKEN)
-    project.pipeline = is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES)
-
-    print(project)
-    
-    return old_type_project
+    #old_type_project =  { "id": project_id, "name": name, 'folder': folder, 'git_url': git_url , "namespace": namespace, "short_name": short_name , "full_name": full_name }
+    return project
 
 def is_autojj_project(jenkinsfile, types):
     if not jenkinsfile:
@@ -104,14 +86,11 @@ def is_autojj_project(jenkinsfile, types):
             return found[2]
     return False
 
-def get_raw_gitlab_jenkinsfile_url(project):
-    project_url = project['git_url']
-    project_id = project['id']
+def get_raw_gitlab_jenkinsfile_url(project_id, project_url):
     base = ('/').join(project_url.split('/')[:3])
     return base + '/api/v4/projects/{}/repository/files/Jenkinsfile/raw?ref=master'.format(project_id)
 
-def get_jenkinsfile(project, token):
-    api_url = get_raw_gitlab_jenkinsfile_url(project)
+def get_jenkinsfile(api_url, token):
     resp = requests.get(api_url, headers={'PRIVATE-TOKEN': token}, timeout=2)
     if resp.status_code == 200:
         return resp.text
@@ -175,17 +154,11 @@ def process_event(event):
     if not is_repository_update(event):
         return "Can only handle GitLab 'repository_update' event", 400
 
-    project = get_project(event)
+    project = parse_event(event)
     if project:
-        jenkinsfile = get_jenkinsfile(project, settings.GITLAB_PRIVATE_TOKEN)
-        if jenkinsfile:
-            project_type = is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES)
-            if project_type:
-                project['project_type'] = project_type
-                logs = do_jenkins_actions(project)
-                return "Event processed: " + logs
-            else:
-                return "Cannot detect project type in Jenkinsfile", 200
+        if project.pipeline:
+            logs = do_jenkins_actions(project)
+            return "Event processed: " + logs
         else:
-            return 'Cannot access Jenkinsfile (do not exists)', 200
-    return "Cannot find project in the gitlab event", 200
+            pass
+    return "Cannot parse project in the GitLab event", 200

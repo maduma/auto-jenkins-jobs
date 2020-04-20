@@ -1,6 +1,6 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
-from autojj import get_project, is_autojj_project, get_raw_gitlab_jenkinsfile_url
-from autojj import get_jenkinsfile, actions, is_repository_update
+from autojj import parse_event, is_autojj_project, get_raw_gitlab_jenkinsfile_url
+from autojj import get_jenkinsfile, actions, is_repository_update, Project
 import json
 import responses
 import autojj
@@ -31,19 +31,19 @@ def test_action_bad_input(): # job exists but not the folder !
     rest_api = next_action(job_exists=True, folder_exists=False, job_up_to_date=True)
     assert rest_api == { ACTION: NOP, GO_ON: False }
 
-def test_get_project_repository_update_event(monkeypatch):
-    monkeypatch.setattr(autojj, 'get_jenkinsfile', lambda x, y: None)
+def test_parse_event(monkeypatch):
+    monkeypatch.setattr(autojj, 'get_jenkinsfile', lambda x, y: 'mulePipeline()')
     with open('test_repository_update_event.json', 'r') as f:
         post_data = json.load(f)
-        job = get_project(post_data)
-        assert job == {
-            "id": 6, "name": "maduma/toto",
-            "folder": "maduma",
-            "git_url": "https://gitlab.maduma.org/maduma/toto.git",
-             "namespace": "maduma",
-             "short_name": "toto",
-             "full_name" : "maduma/toto",
-             }
+        job = parse_event(post_data)
+        assert job == Project(
+            id = 6,
+            short_name = 'toto',
+            full_name='maduma/toto',
+            folder = 'maduma',
+            git_http_url = "https://gitlab.maduma.org/maduma/toto.git",
+            pipeline = 'mulePipeline',
+        )
 
 def test_isAutoJJProject_mule_project1():
     jenkinsfile="""
@@ -99,8 +99,9 @@ def test_isAutoJJProject_bad4():
     assert not is_autojj_project(jenkinsfile, types=['otherPipeline'])
 
 def test_get_raw_jenkinsfile_url():
-    project = {'id': 6, 'git_url': 'https://gitlab.maduma.org/maduma/pompiste.git', 'name': 'maduma/pompiste'}
-    url = get_raw_gitlab_jenkinsfile_url(project)
+    project_id = 6
+    project_url = 'https://gitlab.maduma.org/maduma/pompiste.git'
+    url = get_raw_gitlab_jenkinsfile_url(project_id, project_url)
     assert url == 'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master'
 
 @responses.activate
@@ -111,8 +112,8 @@ def test_getjenkinsfile():
         body='mulePipeline()',
         status=200,
         )
-    project = {'id': 6, 'git_url': 'https://gitlab.maduma.org/maduma/pompiste.git', 'name': 'maduma/pompiste'}
-    jenkinsfile = get_jenkinsfile(project, token="myprivatetoken") 
+    api_url = 'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master'
+    jenkinsfile = get_jenkinsfile(api_url, token="myprivatetoken") 
     assert jenkinsfile == 'mulePipeline()'
     assert responses.calls[0].request.headers['PRIVATE-TOKEN'] == 'myprivatetoken'
 
