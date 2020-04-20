@@ -20,6 +20,9 @@ class MockResponse:
         self.server_created = True
         pass
 
+    def get_whoami(self):
+        pass
+
     def create_job(self, name, xml):
         raise Job_created_exception(name)
 

@@ -74,12 +74,14 @@ def create_xml(project, template='templates/pipeline.tmpl.xml'):
         return xml
 
 def jenkins_connect():
-    return jenkins.Jenkins(
+    server =  jenkins.Jenkins(
         settings.JENKINS_URL,
         username=settings.JENKINS_USERNAME,
         password=settings.JENKINS_PASSWORD,
         timeout=2,
         )
+    server.get_whoami()
+    return server
 
 def create_job(project):
     logging.info('create project %s' % project.full_name)
