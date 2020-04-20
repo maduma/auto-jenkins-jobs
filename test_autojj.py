@@ -1,6 +1,6 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
 from autojj import get_project, is_autojj_project, get_raw_gitlab_jenkinsfile_url
-from autojj import get_jenkinsfile, actions
+from autojj import get_jenkinsfile, actions, is_repository_update
 import json
 import responses
 import autojj
@@ -169,3 +169,12 @@ def test_actions_3(monkeypatch):
     assert all_actions == [
         {ACTION: UPDATE_JOB, GO_ON: False},
     ]
+
+def test_is_repository_update_event():
+    assert is_repository_update({}) == False
+    assert is_repository_update("hello") == False
+    assert is_repository_update([1, 2, "hello"]) == False
+    assert is_repository_update([]) == False
+    assert is_repository_update(None) == False
+    assert is_repository_update({'event_name': 'project_creation'}) == False
+    assert is_repository_update({'event_name': 'repository_update'}) == True

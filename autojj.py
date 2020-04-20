@@ -158,8 +158,20 @@ def do_jenkins_actions(project):
             logs.append('Start Job Build')
     return ', '.join(logs)
 
+def is_repository_update(event):
+    try: 
+        if not event.get('event_name') == "repository_update":
+            return False
+    except AttributeError:
+        # handle the case when event is not a dictonary
+        return False
+    return True
+
 # to test !
 def process_event(event):
+    if not is_repository_update(event):
+        return "Can only handle GitLab 'repository_update' event", 400
+
     project = get_project(event)
     if project:
         jenkinsfile = get_jenkinsfile(project, settings.GITLAB_PRIVATE_TOKEN)

@@ -18,7 +18,7 @@ def event():
         event = request.get_json()
         return autojj.process_event(event)
     else:
-        return {'description': "Can only process valid Gitlab System Hook"}, 404
+        return {'description': "Can only process valid Gitlab System Hook"}, 400
 
 @app.route('/autojj/health', methods=['GET'])
 def health():
