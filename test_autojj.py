@@ -1,6 +1,7 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
 from autojj import parse_event, is_autojj_project, get_raw_gitlab_jenkinsfile_url
 from autojj import get_jenkinsfile, actions, is_repository_update, Project
+from autojj import process_event
 import json
 import responses
 import autojj
@@ -172,3 +173,24 @@ def test_is_repository_update_event():
     assert is_repository_update(None) == False
     assert is_repository_update({'event_name': 'project_creation'}) == False
     assert is_repository_update({'event_name': 'repository_update'}) == True
+
+def test_process_event_not_repo_update():
+    event = {'event_name': 'test_event'}
+    assert process_event(event) == ("Can only handle GitLab 'repository_update' event", 400)
+
+def test_process_event_no_pipeline(monkeypatch):
+    project = Project(
+        id = 0, full_name = '', folder = '', short_name = '', git_http_url = '',
+        pipeline = False,
+    )
+    monkeypatch.setattr(autojj, "parse_event", lambda x: project)
+    assert process_event({'event_name': 'repository_update'}) == ("Unknown Jenkins Pipeline", 200)
+
+def test_process_event(monkeypatch):
+    project = Project(
+        id = 0, full_name = '', folder = '', short_name = '', git_http_url = '',
+        pipeline = 'phpPipeline',
+    )
+    monkeypatch.setattr(autojj, "parse_event", lambda x: project)
+    monkeypatch.setattr(autojj, "do_jenkins_actions", lambda x: 'ACTIONS_DONE')
+    assert process_event({'event_name': 'repository_update'}) == ("Event processed: ACTIONS_DONE", 200)

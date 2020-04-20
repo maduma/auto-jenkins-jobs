@@ -8,6 +8,7 @@ import settings
 
 app = Flask(__name__)
 
+# to test
 @app.route('/autojj/event', methods=['POST'])
 def event():
     if not jenkins_client.is_jenkins_online():
@@ -20,6 +21,7 @@ def event():
     else:
         return {'description': "Can only process valid Gitlab System Hook"}, 400
 
+# to test
 @app.route('/autojj/health', methods=['GET'])
 def health():
     jenkins_status = jenkins_client.is_jenkins_online()

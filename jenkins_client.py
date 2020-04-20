@@ -4,18 +4,14 @@ import os
 import xml.etree.ElementTree as ET
 import re
 import logging
-
-JENKINS_SERVER = os.environ.get('JENKINS_SERVER', 'unknown')
-JENKINS_USERNAME = os.environ.get('JENKINS_USERNAME', 'unknown')
-JENKINS_PASSWORD = os.environ.get('JENKINS_PASSWORD', 'unknown')
+import settings
 
 logging.basicConfig(level=logging.INFO)
 
-# need mock to test
+# to test
 def is_jenkins_online():
     try:
         server = jenkins_connect()
-        id = server.get_whoami().get('id', None)
         version = server.get_version()
         return {'status': 'online', 'version': version}
     except:
@@ -70,27 +66,32 @@ def create_xml(project, template='templates/pipeline.tmpl.xml'):
     with open(template) as f:
         xml = f.read()
         xml = xml.format(
-            job_name=project['short_name'],
-            git_http_url=project['git_url'],
+            job_name=project.short_name,
+            git_http_url=project.git_http_url,
             git_creds_id='gitlab_maduma_org',
             gitlab_connection='',
         )
         return xml
 
 def jenkins_connect():
-    return jenkins.Jenkins(JENKINS_SERVER, username=JENKINS_USERNAME, password=JENKINS_PASSWORD, timeout=2)
+    return jenkins.Jenkins(
+        settings.JENKINS_URL,
+        username=settings.JENKINS_USERNAME,
+        password=settings.JENKINS_PASSWORD,
+        timeout=2,
+        )
 
 def create_job(project):
-    logging.info('create project %s' % project['name'])
+    logging.info('create project %s' % project.full_name)
     xml = create_xml(project)
     server = jenkins_connect()
-    server.create_job(project['name'], xml)
+    server.create_job(project.full_name, xml)
 
 def update_job(project):
-    logging.info('update project %s' % project['name'])
+    logging.info('update project %s' % project.full_name)
     xml = create_xml(project)
     server = jenkins_connect()
-    server.reconfig_job(project['name'], xml)
+    server.reconfig_job(project.full_name, xml)
 
 def create_folder(folder_name):
     logging.info('create folder %s' % folder_name)

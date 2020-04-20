@@ -47,9 +47,6 @@ def next_action(job_exists, folder_exists, job_up_to_date=False):
 
 def parse_event(event):
 
-    #namespace = event['project']['namespace']
-    #name = event['project']['path_with_namespace']
-    #git_url = event['project']['git_http_url']
     full_name = event['project']['path_with_namespace']
     folder, short_name = full_name.split('/')
     project_id = event['project_id']
@@ -68,7 +65,6 @@ def parse_event(event):
       pipeline = pipeline,
     )
 
-    #old_type_project =  { "id": project_id, "name": name, 'folder': folder, 'git_url': git_url , "namespace": namespace, "short_name": short_name , "full_name": full_name }
     return project
 
 def is_autojj_project(jenkinsfile, types):
@@ -100,8 +96,8 @@ def get_jenkinsfile(api_url, token):
 
 # to test
 def get_job_state(project):
-    pipeline_xml = jenkins_client.is_pipeline_exists(project['name'])
-    is_folder_exists = jenkins_client.is_folder_exists(project['namespace'])
+    pipeline_xml = jenkins_client.is_pipeline_exists(project.full_name)
+    is_folder_exists = jenkins_client.is_folder_exists(project.folder)
     is_pipeline_up_to_date = False
     if pipeline_xml:
         is_pipeline_up_to_date = jenkins_client.is_job_up_to_date_xml(pipeline_xml)
@@ -119,25 +115,20 @@ def actions(project, action={ACTION: NOP, GO_ON: True}):
 # to test
 def do_jenkins_actions(project):
     logs = []
-    for action in actions(project):
-        if action[ACTION] == CREATE_JOB:
-            name = project['name']
+    for action in [ x[ACTION] for x in actions(project) ]:
+        if action == CREATE_JOB:
             jenkins_client.create_job(project)
-            jenkins_client.build_job(name)
             if not gitlab_client.is_hook_installed(project):
                 gitlab_client.install_jenkins_hook(project)
             logs.append('Project Created, gitlab hook installed and Build Started')
-        elif action[ACTION] == UPDATE_JOB:
+        elif action == UPDATE_JOB:
             jenkins_client.update_job(project)
             logs.append('Project Updated')
-        elif action[ACTION] == CREATE_FOLDER:
-            name = project['namespace']
-            jenkins_client.create_folder(name)
-            logs.append('Folder Created')
-        elif action[ACTION] == BUILD_JOB:
-            name = project['namespace']
-            jenkins_client.build_job(name)
-            logs.append('Start Job Build')
+        elif action == CREATE_FOLDER:
+            jenkins_client.create_folder(project.folder)
+            logs.append('Folder Created ' + project.folder)
+        else:
+            logs.append('Unknow action ' + action)
     return ', '.join(logs)
 
 def is_repository_update(event):
@@ -149,7 +140,6 @@ def is_repository_update(event):
         return False
     return True
 
-# to test !
 def process_event(event):
     if not is_repository_update(event):
         return "Can only handle GitLab 'repository_update' event", 400
@@ -158,7 +148,7 @@ def process_event(event):
     if project:
         if project.pipeline:
             logs = do_jenkins_actions(project)
-            return "Event processed: " + logs
+            return "Event processed: " + logs , 200
         else:
-            pass
-    return "Cannot parse project in the GitLab event", 200
+            return "Unknown Jenkins Pipeline", 200
+    return "Cannot parse project in the GitLab event", 500

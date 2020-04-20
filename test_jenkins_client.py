@@ -1,10 +1,12 @@
 from jenkins_client import is_job_up_to_date_xml, get_job_type_and_version, get_description
 from jenkins_client import create_xml
 from jenkins_client import jenkins_connect, create_job, update_job, create_folder, build_job
+from autojj import Project
 import jenkins
 import responses
 import pytest
 import test_jenkins_mock
+import jenkins_client
 
 def test_is_jenkins_online_good():
     #responses.add(responses.GET, 'http://172.10.23.3/crumbIssuer/api/json')
@@ -52,7 +54,9 @@ def test_get_job_type_and_version_empty():
     assert get_job_type_and_version(None) == None
 
 def test_create_xml():
-    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'short_name': 'dentiste'}
+    project =  Project(id=0, full_name='maduma/dentiste', folder='maduma', short_name='dentiste', pipeline='phpPipeline',
+        git_http_url = 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git',
+    )
     xml = create_xml(project, template='test_pipeline_short.tmpl.xml')
     assert xml == """<gitLabConnection></gitLabConnection>
 <name>dentiste</name>
@@ -62,21 +66,22 @@ def test_create_xml():
 
 def test_jenkins_connect(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    assert jenkins_connect().server_created
+    assert getattr(jenkins_connect(), 'server_created')
 
 def test_jenkins_create_job(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'pompiste', 'short_name': 'pompiste'}
+    monkeypatch.setattr(jenkins_client, "create_xml", lambda project: 'THIS_IS_XML')
+    project =  Project(id=0, full_name='maduma/pompiste', folder='maduma', short_name='pompiste', git_http_url='', pipeline='phpPipeline')
     with pytest.raises(test_jenkins_mock.Job_created_exception) as ex:
         create_job(project)
-    assert str(ex.value) == 'pompiste'
+    assert str(ex.value) == 'maduma/pompiste'
 
 def test_jenkins_update_job(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    project = {'git_url': 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git', 'name': 'flutiste', 'short_name': 'pompiste'}
+    project =  Project(id=0, full_name='maduma/flutiste', folder='maduma', short_name='flutiste', git_http_url='', pipeline='phpPipeline')
     with pytest.raises(test_jenkins_mock.Job_reconfigured_exception) as ex:
         update_job(project)
-    assert str(ex.value) == 'flutiste'
+    assert str(ex.value) == 'maduma/flutiste'
 
 def test_jenkins_created_folder(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
