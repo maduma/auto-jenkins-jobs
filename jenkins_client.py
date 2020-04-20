@@ -14,8 +14,8 @@ def is_jenkins_online():
         server = jenkins_connect()
         version = server.get_version()
         return {'status': 'online', 'version': version}
-    except:
-        return False
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}
 
 def is_pipeline_exists(job_name):
     pattern =  '<flow-definition plugin="workflow-job@'

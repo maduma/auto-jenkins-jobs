@@ -25,7 +25,7 @@ def event():
 @app.route('/health', methods=['GET'])
 def health():
     jenkins_status = jenkins_client.is_jenkins_online()
-    if jenkins_status:
+    if jenkins_status['status'] == 'online':
         return {'status': 'pass', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status}
     else:
-        return {'status': 'Jenkins not online', 'version': settings.AUTOJJ_VERSION, 'jenkins': 'No connection'}, 503
+        return {'status': 'Jenkins not online', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status}, 503
