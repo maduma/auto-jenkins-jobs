@@ -6,7 +6,7 @@ import re
 import logging
 import settings
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # to test
 def is_jenkins_online():
