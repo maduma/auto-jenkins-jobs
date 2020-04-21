@@ -1,10 +1,7 @@
 import os
 import requests
-
 import logging
 import settings
-
-logging.basicConfig(level=logging.INFO)
 
 def get_all_hooks(project, token=settings.GITLAB_PRIVATE_TOKEN):
     url = '{gitlab_url}/api/v4/projects/{project_id}/hooks'.format(

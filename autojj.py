@@ -7,8 +7,6 @@ import gitlab_client
 import settings
 import collections
 
-logging.basicConfig(level=logging.INFO)
-
 ACTION = 'action'
 GO_ON = 'go_on'
 NOP = None

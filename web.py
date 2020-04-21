@@ -1,7 +1,6 @@
 from flask import Flask, request
 import time
 import os
-
 import autojj
 import jenkins_client
 import settings
@@ -28,4 +27,4 @@ def health():
     if jenkins_status['status'] == 'online':
         return {'status': 'pass', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status}
     else:
-        return {'status': 'Jenkins not online', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status}, 503
+        return {'status': 'degraded', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status}
