@@ -113,21 +113,22 @@ def actions(project, action={ACTION: NOP, GO_ON: True}):
 # to test
 def do_jenkins_actions(project):
     logs = []
-    for action in [ x[ACTION] for x in actions(project) ]:
-        logging.info('handle action: ' + action)
-        if action == CREATE_JOB:
+    for action in actions(project):
+        type = action[ACTION] 
+        logging.info('handle action: ' + type)
+        if type == CREATE_JOB:
             jenkins_client.create_job(project)
             if not gitlab_client.is_hook_installed(project):
                 gitlab_client.install_jenkins_hook(project)
             logs.append('Project Created, gitlab hook installed and Build Started')
-        elif action == UPDATE_JOB:
+        elif type == UPDATE_JOB:
             jenkins_client.update_job(project)
             logs.append('Project Updated')
-        elif action == CREATE_FOLDER:
+        elif type == CREATE_FOLDER:
             jenkins_client.create_folder(project.folder)
             logs.append('Folder Created ' + project.folder)
         else:
-            logs.append('Unknow action ' + action)
+            logs.append('Unknow action ' + type)
     return ', '.join(logs)
 
 def is_repository_update(event):
