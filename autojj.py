@@ -114,6 +114,7 @@ def actions(project, action={ACTION: NOP, GO_ON: True}):
 def do_jenkins_actions(project):
     logs = []
     for action in [ x[ACTION] for x in actions(project) ]:
+        logging.info('handle action: ' + action)
         if action == CREATE_JOB:
             jenkins_client.create_job(project)
             if not gitlab_client.is_hook_installed(project):
