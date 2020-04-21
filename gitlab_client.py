@@ -3,6 +3,9 @@ import requests
 import logging
 import settings
 
+def is_gitlab_online(gitlab_url=settings.GITLAB_URL, token=settings.GITLAB_PRIVATE_TOKEN):
+    pass
+
 def get_all_hooks(project, token=settings.GITLAB_PRIVATE_TOKEN):
     url = '{gitlab_url}/api/v4/projects/{project_id}/hooks'.format(
         gitlab_url = '/'.join(project.git_http_url.split('/')[:3]),
