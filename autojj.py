@@ -89,7 +89,7 @@ def get_jenkinsfile(api_url, token):
     if resp.status_code == 200:
         return resp.text
     else:
-        logging.error('Cannot get Jenkins file')
+        logging.error('Cannot get Jenkins file ' + str(resp.reason))
         return None
 
 # to test
