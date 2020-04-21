@@ -10,8 +10,5 @@ COPY . .
 
 USER autojj
 
-ENV LOG_LEVEL=INFO
-ENV GUNICORN_CMD_ARGS="--log-level $LOG_LEVEL"
-
 ENTRYPOINT ["gunicorn", "--workers", "1", "--threads", "1", "--bind", "0.0.0.0:5000", "web:app"]
 EXPOSE 5000
