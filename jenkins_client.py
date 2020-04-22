@@ -10,8 +10,8 @@ import settings
 def is_jenkins_online():
     try:
         server = jenkins_connect()
-        version = server.get_version()
-        return {'status': 'online', 'version': version}
+        server.get_version()
+        return {'status': 'online'}
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
 

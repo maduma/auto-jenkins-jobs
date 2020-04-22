@@ -2,6 +2,7 @@ from flask import Flask, request
 import time
 import os
 import autojj
+import gitlab_client
 import jenkins_client
 import settings
 
@@ -24,7 +25,8 @@ def event():
 @app.route('/health', methods=['GET'])
 def health():
     jenkins_status = jenkins_client.is_jenkins_online()
-    if jenkins_status['status'] == 'online':
-        return {'status': 'pass', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status}
+    gitlab_status = gitlab_client.is_gitlab_online()
+    if jenkins_status['status'] == 'online' and gitlab_status['status'] == 'online':
+        return {'status': 'pass', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status, 'gitlab': gitlab_status}
     else:
-        return {'status': 'degraded', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status}
+        return {'status': 'degraded', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status, 'gitlab': gitlab_status}

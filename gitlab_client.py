@@ -4,12 +4,24 @@ import logging
 import settings
 
 def is_gitlab_online(gitlab_url=settings.GITLAB_URL, token=settings.GITLAB_PRIVATE_TOKEN):
-    pass
+    url = '{server}/api/v4/user'.format(server = gitlab_url)
+    try:
+        resp = requests.get(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
+        if resp.status_code == 200:
+            if resp.json()['is_admin']:
+                return {'status': 'online'}
+            else:
+                return {'status': 'degraded', 'message': 'requires higher privileges than provided'}
+        else:
+            return {'status': 'offline', 'message': resp.reason}
+    except Exception as e:
+        return {'status': 'offline', 'message': str(e)}
+
 
 def get_all_hooks(project, token=settings.GITLAB_PRIVATE_TOKEN):
-    url = '{gitlab_url}/api/v4/projects/{project_id}/hooks'.format(
-        gitlab_url = '/'.join(project.git_http_url.split('/')[:3]),
-        project_id = project.id,
+    url = '{server}/api/v4/projects/{id}/hooks'.format(
+        server = '/'.join(project.git_http_url.split('/')[:3]),
+        id = project.id,
     )
     resp = requests.get(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
     if resp.status_code == 200:
