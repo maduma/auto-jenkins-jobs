@@ -19,6 +19,7 @@ BUILD_JOB = 'build_job'
 Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline')
 PipelineState = collections.namedtuple('PipelineState', 'is_folder_exists, is_pipeline_exists is_folder_updated is_pipeline_updated')
 ALL_GOOD_STATE = PipelineState(is_folder_exists=True, is_pipeline_exists=True, is_folder_updated=True, is_pipeline_updated=True)
+MAX_TRY = 3
 
 
 def next_action(job_exists, folder_exists, job_up_to_date=False):
@@ -161,32 +162,29 @@ def process_event(event):
 def get_pipeline_state(project):
     return PipelineState(*[True]*4)
 
-def install_pipeline(project):
-    log = []
-    state = get_pipeline_state(project)
-    print(state)
-
-    if state == ALL_GOOD_STATE:
-        log.append(f'Pipeline {project.full_name} exists and up-to-date, nothing to do')
+def install_pipeline(project, log=None, max_try=0):
+    if max_try >= MAX_TRY:
+        log.append(f'Try more than {MAX_TRY} times, check errors')
         return log
 
+    if log == None:
+        log = []
+
+    state = get_pipeline_state(project)
     if not state.is_folder_exists:
         log.append(jenkins_client.create_folder(project))
-        log.append(jenkins_client.create_pipeline(project))
-        log.append(gitlab_client.install_web_hook(project))
-        return log
-
-    if not state.is_pipeline_exists:
-        if not state.is_folder_updated:
-            log.append(jenkins_client.update_folder(project))
-        log.append(jenkins_client.create_pipeline(project))
-        log.append(gitlab_client.install_web_hook(project))
-        return log
-
-    if not state.is_pipeline_updated:
-        log.append(jenkins_client.update_pipeline(project))
-        return log
-
-    if not state.is_folder_updated:
+    elif not state.is_folder_updated:
         log.append(jenkins_client.update_folder(project))
+    elif not state.is_pipeline_exists:
+        log.append(jenkins_client.create_pipeline(project))
+        log.append(gitlab_client.install_web_hook(project))
+    elif not state.is_pipeline_updated:
+        log.append(jenkins_client.update_pipeline(project))
+    else:
+        assert state == ALL_GOOD_STATE
+        if not len(log):
+            log.append(f'Pipeline {project.full_name} exists and up-to-date, nothing to do')
         return log
+
+    return install_pipeline(project, log=log, max_try=max_try + 1)
+

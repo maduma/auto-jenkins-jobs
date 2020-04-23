@@ -1,7 +1,7 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
 from autojj import parse_event, is_autojj_project, get_raw_gitlab_jenkinsfile_url
 from autojj import get_jenkinsfile, actions, is_repository_update, Project
-from autojj import process_event, install_pipeline, PipelineState, ALL_GOOD_STATE
+from autojj import process_event, install_pipeline, PipelineState, ALL_GOOD_STATE, MAX_TRY
 import json
 import responses
 import autojj
@@ -270,3 +270,14 @@ def test_install_pipeline_8(monkeypatch):
     ])
     project = Project(id = 0, full_name = 'infra/autojj', folder = 'infra', short_name = '', git_http_url = '', pipeline = '')
     assert install_pipeline(project) == ['Update folder infra']
+
+def test_install_pipeline_9(monkeypatch):
+    install_pipeline_monkeypatch(monkeypatch, states=[
+        PipelineState(is_folder_exists=True, is_pipeline_exists=True, is_folder_updated=False, is_pipeline_updated=True),
+        PipelineState(is_folder_exists=True, is_pipeline_exists=True, is_folder_updated=False, is_pipeline_updated=True),
+        PipelineState(is_folder_exists=True, is_pipeline_exists=True, is_folder_updated=False, is_pipeline_updated=True),
+        PipelineState(is_folder_exists=True, is_pipeline_exists=True, is_folder_updated=False, is_pipeline_updated=True),
+    ])
+    project = Project(id = 0, full_name = 'infra/autojj', folder = 'infra', short_name = '', git_http_url = '', pipeline = '')
+    err_msg = f'Try more than {MAX_TRY} times, check errors'
+    assert install_pipeline(project) == ['Update folder infra', 'Update folder infra', 'Update folder infra', err_msg]
