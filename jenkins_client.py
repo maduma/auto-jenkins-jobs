@@ -87,11 +87,20 @@ def create_job(project):
     server = jenkins_connect()
     server.create_job(project.full_name, xml)
 
+def create_pipeline(project):
+    pass
+
 def update_job(project):
     logging.info('update project %s' % project.full_name)
     xml = create_xml(project)
     server = jenkins_connect()
     server.reconfig_job(project.full_name, xml)
+
+def update_folder(project):
+    pass
+
+def update_pipeline(project):
+    pass
 
 def create_folder(folder_name):
     logging.info('create folder %s' % folder_name)

@@ -1,10 +1,12 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
 from autojj import parse_event, is_autojj_project, get_raw_gitlab_jenkinsfile_url
 from autojj import get_jenkinsfile, actions, is_repository_update, Project
-from autojj import process_event
+from autojj import process_event, install_pipeline, PipelineState, ALL_GOOD_STATE
 import json
 import responses
 import autojj
+import jenkins_client
+import gitlab_client
 
 def test_action_new_job_creation_folder():
     rest_api = next_action(job_exists=False, folder_exists=False)
@@ -194,3 +196,77 @@ def test_process_event(monkeypatch):
     monkeypatch.setattr(autojj, "parse_event", lambda x: project)
     monkeypatch.setattr(autojj, "do_jenkins_actions", lambda x: 'ACTIONS_DONE')
     assert process_event({'event_name': 'repository_update'}) == ("Event processed: ACTIONS_DONE", 200)
+
+def get_pipeline_state_mock(states):
+    def state_gen():
+        for state in states: yield state
+    gen = state_gen()
+    return lambda project: gen.__next__()    
+
+def install_pipeline_monkeypatch(monkeypatch, states=[PipelineState(True, True, True, True), ALL_GOOD_STATE]):
+    monkeypatch.setattr(autojj, "get_pipeline_state", get_pipeline_state_mock(states))
+    monkeypatch.setattr(jenkins_client, "create_folder", lambda project: f'Create folder {project.folder}')
+    monkeypatch.setattr(jenkins_client, "create_pipeline", lambda project: f'Create pipeline {project.full_name}')
+    monkeypatch.setattr(jenkins_client, "update_folder", lambda project: f'Update folder {project.folder}')
+    monkeypatch.setattr(jenkins_client, "update_pipeline", lambda project: f'Update pipeline {project.full_name}')
+    monkeypatch.setattr(gitlab_client, "install_web_hook", lambda project: f'Install GitLab webhook for {project.full_name}')
+
+def test_install_pipeline_1(monkeypatch):
+    install_pipeline_monkeypatch(monkeypatch)
+    project = Project(id = 0, full_name = 'web/plane', folder = 'web', short_name = '', git_http_url = '', pipeline = '')
+    assert install_pipeline(project)  == ['Pipeline web/plane exists and up-to-date, nothing to do']
+
+def test_install_pipeline_2(monkeypatch):
+    install_pipeline_monkeypatch(monkeypatch)
+    project = Project(id = 0, full_name = 'infra/autojj', folder = 'infra', short_name = '', git_http_url = '', pipeline = '')
+    assert install_pipeline(project)  == ['Pipeline infra/autojj exists and up-to-date, nothing to do']
+
+def test_install_pipeline_3(monkeypatch):
+    install_pipeline_monkeypatch(monkeypatch, states=[
+        PipelineState(is_folder_exists=True, is_pipeline_exists=False, is_folder_updated=True, is_pipeline_updated=False),
+        ALL_GOOD_STATE,
+    ])
+    project = Project(id = 0, full_name = 'infra/autojj', folder = 'infra', short_name = '', git_http_url = '', pipeline = '')
+    assert install_pipeline(project) == ['Create pipeline infra/autojj', 'Install GitLab webhook for infra/autojj']
+
+def test_install_pipeline_4(monkeypatch):
+    install_pipeline_monkeypatch(monkeypatch, states=[
+        PipelineState(is_folder_exists=True, is_pipeline_exists=False, is_folder_updated=True, is_pipeline_updated=True),
+        ALL_GOOD_STATE,
+    ])
+    project = Project(id = 0, full_name = 'infra/autojj', folder = 'infra', short_name = '', git_http_url = '', pipeline = '')
+    assert install_pipeline(project) == ['Create pipeline infra/autojj', 'Install GitLab webhook for infra/autojj']
+
+def test_install_pipeline_5(monkeypatch):
+    install_pipeline_monkeypatch(monkeypatch, states=[
+        PipelineState(is_folder_exists=False, is_pipeline_exists=False, is_folder_updated=True, is_pipeline_updated=True),
+        PipelineState(is_folder_exists=True, is_pipeline_exists=False, is_folder_updated=True, is_pipeline_updated=True),
+        ALL_GOOD_STATE,
+    ])
+    project = Project(id = 0, full_name = 'infra/autojj', folder = 'infra', short_name = '', git_http_url = '', pipeline = '')
+    assert install_pipeline(project) == ['Create folder infra', 'Create pipeline infra/autojj', 'Install GitLab webhook for infra/autojj']
+
+def test_install_pipeline_6(monkeypatch):
+    install_pipeline_monkeypatch(monkeypatch, states=[
+        PipelineState(is_folder_exists=True, is_pipeline_exists=False, is_folder_updated=False, is_pipeline_updated=True),
+        PipelineState(is_folder_exists=True, is_pipeline_exists=False, is_folder_updated=True, is_pipeline_updated=True),
+        ALL_GOOD_STATE,
+    ])
+    project = Project(id = 0, full_name = 'infra/autojj', folder = 'infra', short_name = '', git_http_url = '', pipeline = '')
+    assert install_pipeline(project) == ['Update folder infra', 'Create pipeline infra/autojj', 'Install GitLab webhook for infra/autojj']
+
+def test_install_pipeline_7(monkeypatch):
+    install_pipeline_monkeypatch(monkeypatch, states=[
+        PipelineState(is_folder_exists=True, is_pipeline_exists=True, is_folder_updated=True, is_pipeline_updated=False),
+        ALL_GOOD_STATE,
+    ])
+    project = Project(id = 0, full_name = 'infra/autojj', folder = 'infra', short_name = '', git_http_url = '', pipeline = '')
+    assert install_pipeline(project) == ['Update pipeline infra/autojj']
+
+def test_install_pipeline_8(monkeypatch):
+    install_pipeline_monkeypatch(monkeypatch, states=[
+        PipelineState(is_folder_exists=True, is_pipeline_exists=True, is_folder_updated=False, is_pipeline_updated=True),
+        ALL_GOOD_STATE,
+    ])
+    project = Project(id = 0, full_name = 'infra/autojj', folder = 'infra', short_name = '', git_http_url = '', pipeline = '')
+    assert install_pipeline(project) == ['Update folder infra']

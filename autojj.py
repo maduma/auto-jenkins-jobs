@@ -15,7 +15,11 @@ UPDATE_JOB = 'update_job'
 CREATE_FOLDER = 'create_folder'
 BUILD_JOB = 'build_job'
 
+# folder is jenkins folder and full_name is jenkins job full path (folder + name)
 Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline')
+PipelineState = collections.namedtuple('PipelineState', 'is_folder_exists, is_pipeline_exists is_folder_updated is_pipeline_updated')
+ALL_GOOD_STATE = PipelineState(is_folder_exists=True, is_pipeline_exists=True, is_folder_updated=True, is_pipeline_updated=True)
+
 
 def next_action(job_exists, folder_exists, job_up_to_date=False):
     action = {}
@@ -95,11 +99,12 @@ def get_jenkinsfile(api_url, token):
 # to test
 def get_job_state(project):
     pipeline_xml = jenkins_client.is_pipeline_exists(project.full_name)
+    is_pipeline_exits = pipeline_xml
     is_folder_exists = jenkins_client.is_folder_exists(project.folder)
     is_pipeline_up_to_date = False
     if pipeline_xml:
         is_pipeline_up_to_date = jenkins_client.is_job_up_to_date_xml(pipeline_xml)
-    return (pipeline_xml, is_folder_exists, is_pipeline_up_to_date)
+    return (is_pipeline_exits, is_folder_exists, is_pipeline_up_to_date)
 
 # recurtion and yield -> need to use 'yield from'
 def actions(project, action={ACTION: NOP, GO_ON: True}):
@@ -152,3 +157,36 @@ def process_event(event):
         else:
             return "Unknown Jenkins Pipeline", 200
     return "Cannot parse project in the GitLab event", 500
+
+def get_pipeline_state(project):
+    return PipelineState(*[True]*4)
+
+def install_pipeline(project):
+    log = []
+    state = get_pipeline_state(project)
+    print(state)
+
+    if state == ALL_GOOD_STATE:
+        log.append(f'Pipeline {project.full_name} exists and up-to-date, nothing to do')
+        return log
+
+    if not state.is_folder_exists:
+        log.append(jenkins_client.create_folder(project))
+        log.append(jenkins_client.create_pipeline(project))
+        log.append(gitlab_client.install_web_hook(project))
+        return log
+
+    if not state.is_pipeline_exists:
+        if not state.is_folder_updated:
+            log.append(jenkins_client.update_folder(project))
+        log.append(jenkins_client.create_pipeline(project))
+        log.append(gitlab_client.install_web_hook(project))
+        return log
+
+    if not state.is_pipeline_updated:
+        log.append(jenkins_client.update_pipeline(project))
+        return log
+
+    if not state.is_folder_updated:
+        log.append(jenkins_client.update_folder(project))
+        return log

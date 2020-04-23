@@ -68,3 +68,6 @@ def install_jenkins_hook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_u
         return True
     logging.error("Cannot install hook: " + resp.reason)
     return False
+
+def install_web_hook(project):
+    return ''
