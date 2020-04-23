@@ -16,8 +16,9 @@ CREATE_FOLDER = 'create_folder'
 BUILD_JOB = 'build_job'
 
 # folder is jenkins folder and full_name is jenkins job full path (folder + name)
-Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline')
-PipelineState = collections.namedtuple('PipelineState', 'is_folder_exists, is_pipeline_exists is_folder_updated is_pipeline_updated')
+Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline',
+    defaults=[0]+['']*4+[False])
+PipelineState = collections.namedtuple('PipelineState', 'is_folder_exists, is_pipeline_exists is_folder_updated is_pipeline_updated', defaults=[True]*4)
 MAX_TRY = 2
 
 
@@ -159,7 +160,7 @@ def process_event(event):
     return "Cannot parse project in the GitLab event", 500
 
 def get_pipeline_state(project):
-    return PipelineState(*[True]*4)
+    return PipelineState()
 
 def install_pipeline(project, log=None, max_try=0):
     if max_try > MAX_TRY:

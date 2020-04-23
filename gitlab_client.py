@@ -13,9 +13,9 @@ def is_gitlab_online(gitlab_url=settings.GITLAB_URL, token=settings.GITLAB_PRIVA
             else:
                 return {'status': 'degraded', 'message': 'requires higher privileges than provided'}
         else:
-            return {'status': 'offline', 'message': resp.reason}
+            return {'status': 'error', 'message': resp.reason}
     except Exception as e:
-        return {'status': 'offline', 'message': str(e)}
+        return {'status': 'error', 'message': str(e)}
 
 
 def get_all_hooks(project, token=settings.GITLAB_PRIVATE_TOKEN):
