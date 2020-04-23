@@ -1,12 +1,14 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
 from autojj import parse_event, is_autojj_project, get_raw_gitlab_jenkinsfile_url
 from autojj import get_jenkinsfile, actions, is_repository_update, Project
-from autojj import process_event, install_pipeline, PipelineState, ALL_GOOD_STATE, MAX_TRY
+from autojj import process_event, install_pipeline, PipelineState, MAX_TRY
 import json
 import responses
 import autojj
 import jenkins_client
 import gitlab_client
+
+ALL_GOOD_STATE = PipelineState(is_folder_exists=True, is_pipeline_exists=True, is_folder_updated=True, is_pipeline_updated=True)
 
 def test_action_new_job_creation_folder():
     rest_api = next_action(job_exists=False, folder_exists=False)
