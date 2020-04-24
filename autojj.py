@@ -1,7 +1,5 @@
-import os
 import re
 import logging
-import requests
 import collections
 import settings
 import jenkins_client
