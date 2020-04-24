@@ -3,9 +3,8 @@ import requests
 import logging
 import settings
 
-# to test
 def is_gitlab_online(gitlab_url=settings.GITLAB_URL, token=settings.GITLAB_PRIVATE_TOKEN):
-    url = '{server}/api/v4/user'.format(server = gitlab_url)
+    url = f'{gitlab_url}/api/v4/user'
     try:
         resp = requests.get(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
         if resp.status_code == 200:
@@ -19,53 +18,44 @@ def is_gitlab_online(gitlab_url=settings.GITLAB_URL, token=settings.GITLAB_PRIVA
         return {'status': 'error', 'message': str(e)}
 
 
-def get_all_hooks(project, token=settings.GITLAB_PRIVATE_TOKEN):
-    url = '{server}/api/v4/projects/{id}/hooks'.format(
-        server = '/'.join(project.git_http_url.split('/')[:3]),
-        id = project.id,
-    )
+def get_webhooks(project, token=settings.GITLAB_PRIVATE_TOKEN):
+    gitlab_url = '/'.join(project.git_http_url.split('/')[:3])
+    url = f'{gitlab_url}/api/v4/projects/{project.id}/hooks'
     resp = requests.get(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
     if resp.status_code == 200:
-        return resp.json()
-    logging.error("Cannot get all hooks: " + resp.reason)
-    return None
+        return resp.json() # always return an iterable
+    logging.error("Cannot get hooks: " + resp.reason)
+    return []
 
-def is_hook_exists(hooks, project, jenkins_url=settings.JENKINS_URL):
-    if not hooks:
-        hooks = []
+def is_webhook_installed(project, jenkins_url=settings.JENKINS_URL):
+    hooks = get_webhooks(project)
     jenkins_hook_url = jenkins_url + '/project/' + project.full_name
+
     for hook in hooks:
-        logging.info("{hook_url}:{j_url} {hook_id}:{p_id}".format(
-            hook_url = hook['url'],
-            j_url = jenkins_hook_url,
-            hook_id = hook['project_id'],
-            p_id = project.id,
-        ))
-        if hook['url'] == jenkins_hook_url and hook['project_id'] == project.id:
+        hook_url = hook['url']
+        hook_project_id = hook['project_id']
+        logging.info(f"{hook_url}:{jenkins_hook_url} {hook_project_id}:{project.id}")
+
+        if hook_url == jenkins_hook_url and hook_project_id == project.id:
             logging.info("hook already installed")
             return True
+
     logging.info("hook not already installed")
     return False
 
-# to test
-def is_hook_installed(project):
-    hooks = get_all_hooks(project)
-    return is_hook_exists(hooks, project)
-
-def install_web_hook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=settings.JENKINS_URL):
-    if is_hook_installed(project):
+def install_webhook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=settings.JENKINS_URL):
+    if is_webhook_installed(project):
         return f'GitLab webhook already installed for {project.full_name}' 
-    jenkins_hook_url = jenkins_url + '/project/' + project.full_name
+
     data = {
         "id": project.id,
-        "url": jenkins_hook_url,
+        "url": jenkins_url + '/project/' + project.full_name,
         "push_events": True,
         "tag_push_events": True
     }
-    url = '{gitlab_url}/api/v4/projects/{project_id}/hooks'.format(
-        gitlab_url = '/'.join(project.git_http_url.split('/')[:3]),
-        project_id = project.id,
-    )
+    gitlab_url = '/'.join(project.git_http_url.split('/')[:3])
+    url = f'{gitlab_url}/api/v4/projects/{project.id}/hooks'
+
     resp = requests.post(url, headers={'PRIVATE-TOKEN': token}, json=data)
     if resp.status_code == 201:
         logging.info(f"new hook installed for {project.full_name}")
@@ -74,8 +64,8 @@ def install_web_hook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=s
     return f'Cannot install GitLab webhook for {project.full_name}'
 
 def get_raw_gitlab_jenkinsfile_url(project):
-    base = ('/').join(project.git_http_url.split('/')[:3])
-    return base + f'/api/v4/projects/{project.id}/repository/files/Jenkinsfile/raw?ref=master'
+    gitlab_url = ('/').join(project.git_http_url.split('/')[:3])
+    return f'{gitlab_url}/api/v4/projects/{project.id}/repository/files/Jenkinsfile/raw?ref=master'
 
 def get_jenkinsfile(project, token=settings.GITLAB_PRIVATE_TOKEN):
     api_url = get_raw_gitlab_jenkinsfile_url(project)

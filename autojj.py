@@ -81,7 +81,7 @@ def install_pipeline(project, ops_log=None, ops=0):
         ops_log.append(jenkins_client.update_folder(project))
     elif not state.is_pipeline_exists:
         ops_log.append(jenkins_client.create_pipeline(project))
-        ops_log.append(gitlab_client.install_web_hook(project))
+        ops_log.append(gitlab_client.install_webhook(project))
     elif not state.is_pipeline_updated:
         ops_log.append(jenkins_client.update_pipeline(project))
     else: 

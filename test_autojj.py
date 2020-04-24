@@ -116,7 +116,7 @@ def install_pipeline_monkeypatch(monkeypatch, states=[ALL_GOOD_STATE]):
     monkeypatch.setattr(jenkins_client, "create_pipeline", lambda project: f'Create pipeline {project.full_name}')
     monkeypatch.setattr(jenkins_client, "update_folder", lambda project: f'Update folder {project.folder}')
     monkeypatch.setattr(jenkins_client, "update_pipeline", lambda project: f'Update pipeline {project.full_name}')
-    monkeypatch.setattr(gitlab_client, "install_web_hook", lambda project: f'Install GitLab webhook for {project.full_name}')
+    monkeypatch.setattr(gitlab_client, "install_webhook", lambda project: f'Install GitLab webhook for {project.full_name}')
 
 def test_install_pipeline_1(monkeypatch):
     install_pipeline_monkeypatch(monkeypatch)
