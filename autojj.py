@@ -7,14 +7,6 @@ import gitlab_client
 import settings
 import collections
 
-ACTION = 'action'
-GO_ON = 'go_on'
-NOP = None
-CREATE_JOB = 'create_job'
-UPDATE_JOB = 'update_job'
-CREATE_FOLDER = 'create_folder'
-BUILD_JOB = 'build_job'
-
 # folder is jenkins folder and full_name is jenkins job full path (folder + name)
 Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline', defaults=[0] + [''] * 4 + [False])
 MAX_TRY = 2
