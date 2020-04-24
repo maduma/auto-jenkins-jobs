@@ -19,7 +19,8 @@ def parse_event(event):
     project_id = event['project_id']
     git_http_url = event['project']['git_http_url']
 
-    jenkinsfile = gitlab_client.get_jenkinsfile(Project(id=project_id, git_http_url=git_http_url))
+    project = Project(id=project_id, git_http_url=git_http_url)
+    jenkinsfile = gitlab_client.get_jenkinsfile(project)
     pipeline = is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES)
     
     project = Project(
