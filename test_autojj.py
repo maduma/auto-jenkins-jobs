@@ -1,6 +1,5 @@
-from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
 from autojj import parse_event, is_autojj_project, get_raw_gitlab_jenkinsfile_url
-from autojj import get_jenkinsfile, actions, is_repository_update, Project
+from autojj import get_jenkinsfile, is_repository_update, Project
 from autojj import process_event, install_pipeline, MAX_TRY
 from jenkins_client import PipelineState
 import json
@@ -10,32 +9,6 @@ import jenkins_client
 import gitlab_client
 
 ALL_GOOD_STATE = PipelineState()
-
-def test_action_new_job_creation_folder():
-    rest_api = next_action(job_exists=False, folder_exists=False)
-    assert rest_api == { ACTION: CREATE_FOLDER, GO_ON: True }
-    rest_api = next_action(job_exists=False, folder_exists=False, job_up_to_date=True)
-    assert rest_api == { ACTION: CREATE_FOLDER, GO_ON: True }
-
-def test_action_new_job_creation_job():
-    rest_api = next_action(job_exists=False, folder_exists=True)
-    assert rest_api == { ACTION: CREATE_JOB, GO_ON: False }
-    rest_api = next_action(job_exists=False, folder_exists=True, job_up_to_date=True)
-    assert rest_api == { ACTION: CREATE_JOB, GO_ON: False }
-
-def test_action_update_job():
-    rest_api = next_action(job_exists=True, folder_exists=True, job_up_to_date=False)
-    assert rest_api == { ACTION: UPDATE_JOB, GO_ON: False }
-
-def test_action_job_fine():
-    rest_api = next_action(job_exists=True, folder_exists=True, job_up_to_date=True)
-    assert rest_api == { ACTION: NOP, GO_ON: False }
-
-def test_action_bad_input(): # job exists but not the folder !
-    rest_api = next_action(job_exists=True, folder_exists=False)
-    assert rest_api == { ACTION: NOP, GO_ON: False }
-    rest_api = next_action(job_exists=True, folder_exists=False, job_up_to_date=True)
-    assert rest_api == { ACTION: NOP, GO_ON: False }
 
 def test_parse_event(monkeypatch):
     monkeypatch.setattr(autojj, 'get_jenkinsfile', lambda x, y: 'mulePipeline()')
@@ -132,44 +105,6 @@ def mock_get_job_state(states):
 
     return get_job_state
 
-def test_actions_1(monkeypatch):
-    states = [
-        (False, False, False),
-        (False, True, False),
-        (True, True, True),
-    ]
-    monkeypatch.setattr(autojj, "get_job_state", mock_get_job_state(states))
-
-    all_actions = list(actions(project={}))
-    assert all_actions == [
-        {ACTION: CREATE_FOLDER, GO_ON: True},
-        {ACTION: CREATE_JOB, GO_ON: False},
-    ]
-
-def test_actions_2(monkeypatch):
-    states = [
-        (False, True, False),
-        (True, True, True),
-    ]
-    monkeypatch.setattr(autojj, "get_job_state", mock_get_job_state(states))
-
-    all_actions = list(actions(project={}))
-    assert all_actions == [
-        {ACTION: CREATE_JOB, GO_ON: False},
-    ]
-
-def test_actions_3(monkeypatch):
-    states = [
-        (True, True, False),
-        (True, True, True),
-    ]
-    monkeypatch.setattr(autojj, "get_job_state", mock_get_job_state(states))
-
-    all_actions = list(actions(project={}))
-    assert all_actions == [
-        {ACTION: UPDATE_JOB, GO_ON: False},
-    ]
-
 def test_is_repository_update_event():
     assert is_repository_update({}) == False
     assert is_repository_update("hello") == False
@@ -191,7 +126,7 @@ def test_process_event_no_pipeline(monkeypatch):
 def test_process_event(monkeypatch):
     project = Project(pipeline = 'phpPipeline')
     monkeypatch.setattr(autojj, "parse_event", lambda x: project)
-    monkeypatch.setattr(autojj, "do_jenkins_actions", lambda x: ['DONE'])
+    monkeypatch.setattr(autojj, "install_pipeline", lambda x: ['DONE'])
     assert process_event({'event_name': 'repository_update'}) == (['DONE'], 200)
 
 def get_pipeline_state_mock(states):

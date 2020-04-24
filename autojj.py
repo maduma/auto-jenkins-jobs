@@ -19,33 +19,6 @@ BUILD_JOB = 'build_job'
 Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline', defaults=[0] + [''] * 4 + [False])
 MAX_TRY = 2
 
-# TO REMOVE
-def next_action(job_exists, folder_exists, job_up_to_date=False):
-    action = {}
-
-    if folder_exists:
-        if job_exists:
-            if job_up_to_date:
-                action = {ACTION: NOP, GO_ON: False}
-            else:
-                action = {ACTION: UPDATE_JOB, GO_ON: False}
-        else:
-            action = {ACTION: CREATE_JOB, GO_ON: False}
-    elif job_exists:
-        logging.error(f'Bad input: job_exists={job_exists} but not folder. folder_exists={folder_exists}')
-        action = {ACTION: NOP, GO_ON: False}
-    else:
-        action = {ACTION: CREATE_FOLDER, GO_ON: True}
-
-    if not action:
-        logging.error(f'Bad input: job_exists={job_exists} , folder_exists={folder_exists} , job_up_to_date={job_up_to_date}')
-        action = {ACTION: NOP, GO_ON: False}
-    else:
-        logging.debug(f'job_exists={job_exists} , folder_exists={folder_exists} , job_up_to_date={job_up_to_date}')
-        logging.info(f'ACTION: {action[ACTION]}, GO_ON: {action[GO_ON]}')
-
-    return action
-
 def parse_event(event):
 
     full_name = event['project']['path_with_namespace']
@@ -95,46 +68,6 @@ def get_jenkinsfile(api_url, token):
         logging.error('Cannot get Jenkins file ' + str(resp.reason))
         return None
 
-# TO REMOVE 
-def get_job_state(project):
-    pipeline_xml = jenkins_client.is_pipeline_exists(project.full_name)
-    is_pipeline_exits = pipeline_xml
-    is_folder_exists = jenkins_client.is_folder_exists(project.folder)
-    is_pipeline_up_to_date = False
-    if pipeline_xml:
-        is_pipeline_up_to_date = jenkins_client.is_job_up_to_date_xml(pipeline_xml)
-    return (is_pipeline_exits, is_folder_exists, is_pipeline_up_to_date)
-
-# TO REMOVE
-def actions(project, action={ACTION: NOP, GO_ON: True}):
-    if action[ACTION] != NOP:
-        yield action
-    if action[GO_ON]:
-        state = get_job_state(project)
-        action = next_action(*state)
-        yield from actions(project, action)
-
-# TO REMOVE 
-def do_jenkins_actions(project):
-    logs = []
-    for action in actions(project):
-        type = action[ACTION] 
-        logging.info('handle action: ' + type)
-        if type == CREATE_JOB:
-            jenkins_client.create_job(project)
-            if not gitlab_client.is_hook_installed(project):
-                gitlab_client.install_jenkins_hook(project)
-            logs.append('Project Created, gitlab hook installed and Build Started')
-        elif type == UPDATE_JOB:
-            jenkins_client.update_job(project)
-            logs.append('Project Updated')
-        elif type == CREATE_FOLDER:
-            jenkins_client.create_folder(project.folder)
-            logs.append('Folder Created ' + project.folder)
-        else:
-            logs.append('Unknow action ' + type)
-    return ', '.join(logs)
-
 def is_repository_update(event):
     try: 
         if not event.get('event_name') == "repository_update":
@@ -151,7 +84,7 @@ def process_event(event):
     project = parse_event(event)
     if project:
         if project.pipeline:
-            logs = do_jenkins_actions(project)
+            logs = install_pipeline(project)
             return logs, 200
         else:
             return "Unknown Jenkins Pipeline", 200
@@ -180,4 +113,3 @@ def install_pipeline(project, log=None, max_try=0):
         return log
 
     return install_pipeline(project, log=log, max_try=max_try + 1)
-
