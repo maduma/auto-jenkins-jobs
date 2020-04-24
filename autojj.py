@@ -10,6 +10,28 @@ Project = collections.namedtuple('Project', 'id full_name folder short_name git_
 # maximum jenkins operations (create and update)
 MAX_JENKINS_OPS = 2
 
+def process_event(event):
+    if not is_repository_update(event):
+        return "Can only handle GitLab 'repository_update' event", 400
+
+    project = parse_event(event)
+    if project:
+        if project.pipeline:
+            logs = install_pipeline(project)
+            return logs, 200
+        else:
+            return "Unknown Jenkins Pipeline", 200
+    return "Cannot parse project in the GitLab event", 500
+
+def is_repository_update(event):
+    try: 
+        if not event.get('event_name') == "repository_update":
+            return False
+    except AttributeError:
+        # handle the case when event is not a dictonary
+        return False
+    return True
+
 def parse_event(event):
     full_name = event['project']['path_with_namespace']
     folder, short_name = full_name.split('/')
@@ -36,7 +58,7 @@ def is_autojj_project(jenkinsfile, types):
     # look for groovy method
     for type in types:
         if not re.match(r'\w+', type):
-            logging.error('Project type: %s is not a word' % type)
+            logging.error(f'Project type: {type} is not a word')
             return False
         regex = r'(\s|^)({})(\s|\()'.format(type)
         pattern = re.compile(regex)
@@ -44,28 +66,6 @@ def is_autojj_project(jenkinsfile, types):
         if found:
             return found[2]
     return False
-
-def is_repository_update(event):
-    try: 
-        if not event.get('event_name') == "repository_update":
-            return False
-    except AttributeError:
-        # handle the case when event is not a dictonary
-        return False
-    return True
-
-def process_event(event):
-    if not is_repository_update(event):
-        return "Can only handle GitLab 'repository_update' event", 400
-
-    project = parse_event(event)
-    if project:
-        if project.pipeline:
-            logs = install_pipeline(project)
-            return logs, 200
-        else:
-            return "Unknown Jenkins Pipeline", 200
-    return "Cannot parse project in the GitLab event", 500
 
 def install_pipeline(project, ops_log=None, ops=0):
     if ops > MAX_JENKINS_OPS:
@@ -90,3 +90,5 @@ def install_pipeline(project, ops_log=None, ops=0):
         return ops_log
 
     return install_pipeline(project, ops_log=ops_log, ops=ops + 1)
+
+
