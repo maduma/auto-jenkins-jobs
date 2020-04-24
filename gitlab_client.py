@@ -3,6 +3,7 @@ import requests
 import logging
 import settings
 
+# to test
 def is_gitlab_online(gitlab_url=settings.GITLAB_URL, token=settings.GITLAB_PRIVATE_TOKEN):
     url = '{server}/api/v4/user'.format(server = gitlab_url)
     try:
@@ -46,11 +47,14 @@ def is_hook_exists(hooks, project, jenkins_url=settings.JENKINS_URL):
     logging.info("hook not already installed")
     return False
 
+# to test
 def is_hook_installed(project):
     hooks = get_all_hooks(project)
     return is_hook_exists(hooks, project)
 
-def install_jenkins_hook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=settings.JENKINS_URL):
+def install_web_hook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=settings.JENKINS_URL):
+    if is_hook_installed(project):
+        return f'GitLab webhook already installed for {project.full_name}' 
     jenkins_hook_url = jenkins_url + '/project/' + project.full_name
     data = {
         "id": project.id,
@@ -64,13 +68,10 @@ def install_jenkins_hook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_u
     )
     resp = requests.post(url, headers={'PRIVATE-TOKEN': token}, json=data)
     if resp.status_code == 201:
-        logging.info("new hook installed")
-        return True
+        logging.info(f"new hook installed for {project.full_name}")
+        return f'Install GitLab webhook for {project.full_name}' 
     logging.error("Cannot install hook: " + resp.reason)
-    return False
-
-def install_web_hook(project):
-    return ''
+    return f'Cannot install GitLab webhook for {project.full_name}'
 
 def get_raw_gitlab_jenkinsfile_url(project):
     base = ('/').join(project.git_http_url.split('/')[:3])
