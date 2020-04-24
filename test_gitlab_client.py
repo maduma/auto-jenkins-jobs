@@ -1,4 +1,4 @@
-from gitlab_client import is_hook_exists, get_all_hooks, install_jenkins_hook
+from gitlab_client import is_hook_exists, get_all_hooks, install_jenkins_hook, get_raw_gitlab_jenkinsfile_url, get_jenkinsfile
 from autojj import Project
 import responses
 import json
@@ -50,3 +50,27 @@ def test_install_jenkins_hook():
         'push_events': True,
         'tag_push_events': True,
         }
+
+@responses.activate
+def test_getjenkinsfile():
+    responses.add(
+        responses.GET,
+        'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master',
+        body='mulePipeline()',
+        status=200,
+        )
+    project = Project(
+        id = 6,
+        git_http_url = 'https://gitlab.maduma.org/maduma/pompiste.git',
+    )
+    jenkinsfile = get_jenkinsfile(project, token="myprivatetoken") 
+    assert jenkinsfile == 'mulePipeline()'
+    assert responses.calls[0].request.headers['PRIVATE-TOKEN'] == 'myprivatetoken'
+
+def test_get_raw_jenkinsfile_url():
+    project = Project(
+        id = 6,
+        git_http_url = 'https://gitlab.maduma.org/maduma/pompiste.git',
+    )
+    url = get_raw_gitlab_jenkinsfile_url(project)
+    assert url == 'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master'

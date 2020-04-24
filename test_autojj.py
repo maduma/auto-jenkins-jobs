@@ -1,9 +1,8 @@
-from autojj import parse_event, is_autojj_project, get_raw_gitlab_jenkinsfile_url
-from autojj import get_jenkinsfile, is_repository_update, Project
+from autojj import parse_event, is_autojj_project
+from autojj import is_repository_update, Project
 from autojj import process_event, install_pipeline, MAX_JENKINS_OPS
 from jenkins_client import PipelineState
 import json
-import responses
 import autojj
 import jenkins_client
 import gitlab_client
@@ -23,6 +22,7 @@ def test_parse_event(monkeypatch):
             git_http_url = "https://gitlab.maduma.org/maduma/toto.git",
             pipeline = 'mulePipeline',
         )
+
 
 def test_isAutoJJProject_mule_project1():
     jenkinsfile="""
@@ -77,33 +77,6 @@ def test_isAutoJJProject_bad4():
     jenkinsfile=''
     assert not is_autojj_project(jenkinsfile, types=['otherPipeline'])
 
-def test_get_raw_jenkinsfile_url():
-    project_id = 6
-    project_url = 'https://gitlab.maduma.org/maduma/pompiste.git'
-    url = get_raw_gitlab_jenkinsfile_url(project_id, project_url)
-    assert url == 'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master'
-
-@responses.activate
-def test_getjenkinsfile():
-    responses.add(
-        responses.GET,
-        'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master',
-        body='mulePipeline()',
-        status=200,
-        )
-    api_url = 'https://gitlab.maduma.org/api/v4/projects/6/repository/files/Jenkinsfile/raw?ref=master'
-    jenkinsfile = get_jenkinsfile(api_url, token="myprivatetoken") 
-    assert jenkinsfile == 'mulePipeline()'
-    assert responses.calls[0].request.headers['PRIVATE-TOKEN'] == 'myprivatetoken'
-
-def mock_get_job_state(states):
-    indice = 0
-    def get_job_state(project):
-        nonlocal indice
-        indice = indice + 1
-        return states[indice - 1]
-
-    return get_job_state
 
 def test_is_repository_update_event():
     assert is_repository_update({}) == False
@@ -113,6 +86,7 @@ def test_is_repository_update_event():
     assert is_repository_update(None) == False
     assert is_repository_update({'event_name': 'project_creation'}) == False
     assert is_repository_update({'event_name': 'repository_update'}) == True
+
 
 def test_process_event_not_repo_update():
     event = {'event_name': 'test_event'}
@@ -128,6 +102,7 @@ def test_process_event(monkeypatch):
     monkeypatch.setattr(autojj, "parse_event", lambda x: project)
     monkeypatch.setattr(autojj, "install_pipeline", lambda x: ['DONE'])
     assert process_event({'event_name': 'repository_update'}) == (['DONE'], 200)
+
 
 def get_pipeline_state_mock(states):
     def state_gen():

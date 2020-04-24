@@ -1,11 +1,11 @@
-import logging
-import re
-import requests
 import os
+import re
+import logging
+import requests
+import collections
+import settings
 import jenkins_client
 import gitlab_client
-import settings
-import collections
 
 # folder is jenkins folder and full_name is jenkins job full path 
 Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline', defaults=[0] + [''] * 4 + [False])
@@ -13,7 +13,6 @@ Project = collections.namedtuple('Project', 'id full_name folder short_name git_
 MAX_JENKINS_OPS = 2
 
 def parse_event(event):
-
     full_name = event['project']['path_with_namespace']
     folder, short_name = full_name.split('/')
     project_id = event['project_id']
@@ -31,7 +30,6 @@ def parse_event(event):
       git_http_url = git_http_url,
       pipeline = pipeline,
     )
-
     return project
 
 def is_autojj_project(jenkinsfile, types):
@@ -48,18 +46,6 @@ def is_autojj_project(jenkinsfile, types):
         if found:
             return found[2]
     return False
-
-def get_raw_gitlab_jenkinsfile_url(project_id, project_url):
-    base = ('/').join(project_url.split('/')[:3])
-    return base + '/api/v4/projects/{}/repository/files/Jenkinsfile/raw?ref=master'.format(project_id)
-
-def get_jenkinsfile(api_url, token):
-    resp = requests.get(api_url, headers={'PRIVATE-TOKEN': token}, timeout=2)
-    if resp.status_code == 200:
-        return resp.text
-    else:
-        logging.error('Cannot get Jenkins file ' + str(resp.reason))
-        return None
 
 def is_repository_update(event):
     try: 
@@ -83,26 +69,26 @@ def process_event(event):
             return "Unknown Jenkins Pipeline", 200
     return "Cannot parse project in the GitLab event", 500
 
-def install_pipeline(project, log=None, ops=0):
+def install_pipeline(project, ops_log=None, ops=0):
     if ops > MAX_JENKINS_OPS:
-        log.append(f'Try more than {MAX_JENKINS_OPS} times, check errors')
-        return log
+        ops_log.append(f'Try more than {MAX_JENKINS_OPS} times, check errors')
+        return ops_log
 
-    if log == None:
-        log = []
+    if ops_log == None:
+        ops_log = []
     state = jenkins_client.get_pipeline_state(project)
     if not state.is_folder_exists:
-        log.append(jenkins_client.create_folder(project))
+        ops_log.append(jenkins_client.create_folder(project))
     elif not state.is_folder_updated:
-        log.append(jenkins_client.update_folder(project))
+        ops_log.append(jenkins_client.update_folder(project))
     elif not state.is_pipeline_exists:
-        log.append(jenkins_client.create_pipeline(project))
-        log.append(gitlab_client.install_web_hook(project))
+        ops_log.append(jenkins_client.create_pipeline(project))
+        ops_log.append(gitlab_client.install_web_hook(project))
     elif not state.is_pipeline_updated:
-        log.append(jenkins_client.update_pipeline(project))
+        ops_log.append(jenkins_client.update_pipeline(project))
     else: 
-        if not len(log):
-            log.append(f'Pipeline {project.full_name} exists and up-to-date, nothing to do')
-        return log
+        if not len(ops_log):
+            ops_log.append(f'Pipeline {project.full_name} exists and up-to-date, nothing to do')
+        return ops_log
 
-    return install_pipeline(project, log=log, ops=ops + 1)
+    return install_pipeline(project, ops_log=ops_log, ops=ops + 1)
