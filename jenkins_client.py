@@ -43,23 +43,23 @@ def is_pipeline_updated(job_name):
     return True
 
 def get_pipeline_state(project):
-    is_folder_exists = is_folder_exists(project)
+    folder_exists = is_folder_exists(project)
 
-    is_folder_updated = True
-    if is_folder_exists:
-        is_folder_updated = is_folder_updated(project)
+    folder_updated = True
+    if folder_exists:
+        folder_updated = is_folder_updated(project)
 
-    is_pipeline_exists = is_pipeline_exists(project)
+    pipeline_exists = is_pipeline_exists(project)
 
-    is_pipeline_updated = True
-    if is_pipeline_exists:
-        is_pipeline_updated = is_pipeline_updated(project)
+    pipeline_updated = True
+    if pipeline_exists:
+        pipeline_updated = is_pipeline_updated(project)
 
     return PipelineState(
-        is_folder_exists=is_folder_exists,
-        is_folder_updated=is_folder_updated,
-        is_pipeline_exists=is_pipeline_exists,
-        is_pipeline_updated=is_pipeline_updated
+        is_folder_exists=folder_exists,
+        is_folder_updated=folder_updated,
+        is_pipeline_exists=pipeline_exists,
+        is_pipeline_updated=pipeline_updated
     )
 
 def is_job_up_to_date_xml(jenkins_job_xml, template='templates/pipeline.tmpl.xml'):

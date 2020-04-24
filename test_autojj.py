@@ -1,6 +1,6 @@
 from autojj import parse_event, is_autojj_project, get_raw_gitlab_jenkinsfile_url
 from autojj import get_jenkinsfile, is_repository_update, Project
-from autojj import process_event, install_pipeline, MAX_TRY
+from autojj import process_event, install_pipeline, MAX_JENKINS_OPS
 from jenkins_client import PipelineState
 import json
 import responses
@@ -11,7 +11,7 @@ import gitlab_client
 ALL_GOOD_STATE = PipelineState()
 
 def test_parse_event(monkeypatch):
-    monkeypatch.setattr(autojj, 'get_jenkinsfile', lambda x, y: 'mulePipeline()')
+    monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: 'mulePipeline()')
     with open('test_repository_update_event.json', 'r') as f:
         post_data = json.load(f)
         job = parse_event(post_data)
@@ -211,5 +211,5 @@ def test_install_pipeline_9(monkeypatch):
         PipelineState(is_folder_updated=False),
     ])
     project = Project(full_name = 'infra/autojj', folder = 'infra')
-    err_msg = f'Try more than {MAX_TRY} times, check errors'
+    err_msg = f'Try more than {MAX_JENKINS_OPS} times, check errors'
     assert install_pipeline(project) == ['Update folder infra', 'Update folder infra', 'Update folder infra', err_msg]

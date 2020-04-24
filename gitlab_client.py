@@ -71,3 +71,16 @@ def install_jenkins_hook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_u
 
 def install_web_hook(project):
     return ''
+
+def get_raw_gitlab_jenkinsfile_url(project):
+    base = ('/').join(project.git_http_url.split('/')[:3])
+    return base + f'/api/v4/projects/{project.id}/repository/files/Jenkinsfile/raw?ref=master'
+
+def get_jenkinsfile(project, token=settings.GITLAB_PRIVATE_TOKEN):
+    api_url = get_raw_gitlab_jenkinsfile_url(project)
+    resp = requests.get(api_url, headers={'PRIVATE-TOKEN': token}, timeout=2)
+    if resp.status_code == 200:
+        return resp.text
+    else:
+        logging.error('Cannot get Jenkins file ' + str(resp.reason))
+        return None

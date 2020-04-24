@@ -7,9 +7,10 @@ import gitlab_client
 import settings
 import collections
 
-# folder is jenkins folder and full_name is jenkins job full path (folder + name)
+# folder is jenkins folder and full_name is jenkins job full path 
 Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline', defaults=[0] + [''] * 4 + [False])
-MAX_TRY = 2
+# maximum jenkins operations (create and update)
+MAX_JENKINS_OPS = 2
 
 def parse_event(event):
 
@@ -18,8 +19,7 @@ def parse_event(event):
     project_id = event['project_id']
     git_http_url = event['project']['git_http_url']
 
-    api_url = get_raw_gitlab_jenkinsfile_url(project_id, git_http_url)
-    jenkinsfile = get_jenkinsfile(api_url, settings.GITLAB_PRIVATE_TOKEN)
+    jenkinsfile = gitlab_client.get_jenkinsfile(Project(id=project_id, git_http_url=git_http_url))
     pipeline = is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES)
     
     project = Project(
@@ -82,9 +82,9 @@ def process_event(event):
             return "Unknown Jenkins Pipeline", 200
     return "Cannot parse project in the GitLab event", 500
 
-def install_pipeline(project, log=None, max_try=0):
-    if max_try > MAX_TRY:
-        log.append(f'Try more than {MAX_TRY} times, check errors')
+def install_pipeline(project, log=None, ops=0):
+    if ops > MAX_JENKINS_OPS:
+        log.append(f'Try more than {MAX_JENKINS_OPS} times, check errors')
         return log
 
     if log == None:
@@ -104,4 +104,4 @@ def install_pipeline(project, log=None, max_try=0):
             log.append(f'Pipeline {project.full_name} exists and up-to-date, nothing to do')
         return log
 
-    return install_pipeline(project, log=log, max_try=max_try + 1)
+    return install_pipeline(project, log=log, ops=ops + 1)
