@@ -16,12 +16,10 @@ CREATE_FOLDER = 'create_folder'
 BUILD_JOB = 'build_job'
 
 # folder is jenkins folder and full_name is jenkins job full path (folder + name)
-Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline',
-    defaults=[0]+['']*4+[False])
-PipelineState = collections.namedtuple('PipelineState', 'is_folder_exists, is_pipeline_exists is_folder_updated is_pipeline_updated', defaults=[True]*4)
+Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline', defaults=[0] + [''] * 4 + [False])
 MAX_TRY = 2
 
-
+# TO REMOVE
 def next_action(job_exists, folder_exists, job_up_to_date=False):
     action = {}
 
@@ -97,7 +95,7 @@ def get_jenkinsfile(api_url, token):
         logging.error('Cannot get Jenkins file ' + str(resp.reason))
         return None
 
-# to test
+# TO REMOVE 
 def get_job_state(project):
     pipeline_xml = jenkins_client.is_pipeline_exists(project.full_name)
     is_pipeline_exits = pipeline_xml
@@ -107,7 +105,7 @@ def get_job_state(project):
         is_pipeline_up_to_date = jenkins_client.is_job_up_to_date_xml(pipeline_xml)
     return (is_pipeline_exits, is_folder_exists, is_pipeline_up_to_date)
 
-# recurtion and yield -> need to use 'yield from'
+# TO REMOVE
 def actions(project, action={ACTION: NOP, GO_ON: True}):
     if action[ACTION] != NOP:
         yield action
@@ -116,7 +114,7 @@ def actions(project, action={ACTION: NOP, GO_ON: True}):
         action = next_action(*state)
         yield from actions(project, action)
 
-# to test
+# TO REMOVE 
 def do_jenkins_actions(project):
     logs = []
     for action in actions(project):
@@ -154,13 +152,10 @@ def process_event(event):
     if project:
         if project.pipeline:
             logs = do_jenkins_actions(project)
-            return "Event processed: " + logs , 200
+            return logs, 200
         else:
             return "Unknown Jenkins Pipeline", 200
     return "Cannot parse project in the GitLab event", 500
-
-def get_pipeline_state(project):
-    return PipelineState()
 
 def install_pipeline(project, log=None, max_try=0):
     if max_try > MAX_TRY:
@@ -169,7 +164,7 @@ def install_pipeline(project, log=None, max_try=0):
 
     if log == None:
         log = []
-    state = get_pipeline_state(project)
+    state = jenkins_client.get_pipeline_state(project)
     if not state.is_folder_exists:
         log.append(jenkins_client.create_folder(project))
     elif not state.is_folder_updated:

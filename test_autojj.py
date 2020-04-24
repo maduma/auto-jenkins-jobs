@@ -1,7 +1,8 @@
 from autojj import next_action, NOP, CREATE_FOLDER, CREATE_JOB, UPDATE_JOB, GO_ON, ACTION 
 from autojj import parse_event, is_autojj_project, get_raw_gitlab_jenkinsfile_url
 from autojj import get_jenkinsfile, actions, is_repository_update, Project
-from autojj import process_event, install_pipeline, PipelineState, MAX_TRY
+from autojj import process_event, install_pipeline, MAX_TRY
+from jenkins_client import PipelineState
 import json
 import responses
 import autojj
@@ -190,8 +191,8 @@ def test_process_event_no_pipeline(monkeypatch):
 def test_process_event(monkeypatch):
     project = Project(pipeline = 'phpPipeline')
     monkeypatch.setattr(autojj, "parse_event", lambda x: project)
-    monkeypatch.setattr(autojj, "do_jenkins_actions", lambda x: 'ACTIONS_DONE')
-    assert process_event({'event_name': 'repository_update'}) == ("Event processed: ACTIONS_DONE", 200)
+    monkeypatch.setattr(autojj, "do_jenkins_actions", lambda x: ['DONE'])
+    assert process_event({'event_name': 'repository_update'}) == (['DONE'], 200)
 
 def get_pipeline_state_mock(states):
     def state_gen():
@@ -200,7 +201,7 @@ def get_pipeline_state_mock(states):
     return lambda project: gen.__next__()    
 
 def install_pipeline_monkeypatch(monkeypatch, states=[ALL_GOOD_STATE]):
-    monkeypatch.setattr(autojj, "get_pipeline_state", get_pipeline_state_mock(states))
+    monkeypatch.setattr(jenkins_client, "get_pipeline_state", get_pipeline_state_mock(states))
     monkeypatch.setattr(jenkins_client, "create_folder", lambda project: f'Create folder {project.folder}')
     monkeypatch.setattr(jenkins_client, "create_pipeline", lambda project: f'Create pipeline {project.full_name}')
     monkeypatch.setattr(jenkins_client, "update_folder", lambda project: f'Update folder {project.folder}')

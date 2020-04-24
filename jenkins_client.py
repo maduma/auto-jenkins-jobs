@@ -5,6 +5,9 @@ import xml.etree.ElementTree as ET
 import re
 import logging
 import settings
+import collections
+
+PipelineState = collections.namedtuple('PipelineState', 'is_folder_exists, is_pipeline_exists is_folder_updated is_pipeline_updated', defaults=[True] * 4)
 
 # to test
 def is_jenkins_online():
@@ -32,6 +35,32 @@ def is_job_exists(job_name, xml_pattern):
     if xml_pattern in xml:
         return xml
     return False
+
+def is_folder_updated(job_name):
+    return True
+
+def is_pipeline_updated(job_name):
+    return True
+
+def get_pipeline_state(project):
+    is_folder_exists = is_folder_exists(project)
+
+    is_folder_updated = True
+    if is_folder_exists:
+        is_folder_updated = is_folder_updated(project)
+
+    is_pipeline_exists = is_pipeline_exists(project)
+
+    is_pipeline_updated = True
+    if is_pipeline_exists:
+        is_pipeline_updated = is_pipeline_updated(project)
+
+    return PipelineState(
+        is_folder_exists=is_folder_exists,
+        is_folder_updated=is_folder_updated,
+        is_pipeline_exists=is_pipeline_exists,
+        is_pipeline_updated=is_pipeline_updated
+    )
 
 def is_job_up_to_date_xml(jenkins_job_xml, template='templates/pipeline.tmpl.xml'):
     job_version = get_job_type_and_version(get_description(jenkins_job_xml))
