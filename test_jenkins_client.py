@@ -68,6 +68,7 @@ def test_create_xml():
 def test_jenkins_connect(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     assert getattr(jenkins_connect(), 'server_created')
+    assert jenkins_connect().whoami = 'jenkins'
 
 def test_jenkins_create_job(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)

@@ -21,7 +21,8 @@ class MockResponse:
         pass
 
     def get_whoami(self):
-        pass
+        self.whoami = 'jenkins'
+        pass 
 
     def create_job(self, name, xml):
         raise Job_created_exception(name)
