@@ -32,7 +32,7 @@ def is_job_exists(name, xml_pattern):
         return False
     xml = server.get_job_config(name)
     if xml_pattern in xml:
-        return xml
+        return True
     return False
 
 def is_folder_updated(folder):
