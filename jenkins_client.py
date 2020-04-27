@@ -43,12 +43,32 @@ def is_pipeline_updated(pipeline):
 def is_job_xml_updated(name, template):
     server = jenkins_connect()
     job_xml = server.get_job_config(name)
-    job_version = get_job_type_and_version(get_description(job_xml))
+    job_version = get_version(job_xml)
     with open(template) as f:
         template_xml = f.read()
-    template_version = get_job_type_and_version(get_description(template_xml))
+    template_version = get_version(template_xml)
     return template_version == job_version
 
+def get_version(xml):
+    description = get_description(xml)
+    return parse_description(description)
+
+def get_description(xml):
+    root = ET.fromstring(xml)
+    for child in root:
+        if child.tag == 'description': break
+    else:
+        raise(LookupError('Cannot find description'))
+    return child.text
+
+def parse_description(description):
+    if not description:
+        return None
+    pattern = r'\s?Auto Jenkins Job, (\w+):(\S+)'
+    match = re.search(pattern, description)
+    if match:
+        return {'type': match[1], 'version': match[2]}
+    return None
 
 def get_pipeline_state(project):
     folder_exists = is_folder_exists(project.folder)
@@ -69,34 +89,20 @@ def get_pipeline_state(project):
         is_pipeline_updated=pipeline_updated
     )
 
-def get_description(xml):
-    root = ET.fromstring(xml)
-    for child in root:
-        if child.tag == 'description': break
-    else:
-        raise(LookupError('Cannot find description'))
-    return child.text
-
-def parse_description(description):
-    if not description:
-        return None
-    pattern = r'\s?Auto Jenkins Job, (\w+):(\S+)'
-    match = re.search(pattern, description)
-    if match:
-        return {'type': match[1], 'version': match[2]}
-    return None
-
-def create_pipeline_xml(project, template='templates/pipeline.tmpl.xml',
-               gitlab_creds_id=settings.JENKINS_GITLAB_CREDS_ID):
+def create_pipeline_xml(
+    project,
+    template='templates/pipeline.tmpl.xml',
+    gitlab_creds_id=settings.JENKINS_GITLAB_CREDS_ID,
+    ):
     with open(template) as f:
         xml = f.read()
-        xml = xml.format(
-            job_name=project.short_name,
-            git_http_url=project.git_http_url,
-            git_creds_id=gitlab_creds_id,
-            gitlab_connection='',
-        )
-        return xml
+    xml = xml.format(
+        job_name=project.short_name,
+        git_http_url=project.git_http_url,
+        git_creds_id=gitlab_creds_id,
+        gitlab_connection='',
+    )
+    return xml
 
 def jenkins_connect():
     server =  jenkins.Jenkins(
@@ -109,23 +115,20 @@ def jenkins_connect():
     return server
 
 def create_pipeline(project):
-    logging.info('create pipeline %s' % project.full_name)
     xml = create_pipeline_xml(project)
     server = jenkins_connect()
     server.create_job(project.full_name, xml)
-
-def update_folder(project):
-    logging.info('update folder %s' % project.folder)
-    pass
+    return f'create pipeline {project.full_name}'
 
 def update_pipeline(project):
-    logging.info('update folder %s' % project.folder)
-    #server.reconfig_job(project.full_name, xml)
-    pass
+    return f'dummy update pipeline {project.full_name}'
 
 def create_folder(project, template='templates/folder.tmpl.xml'):
-    logging.info('create folder %s' % project.folder)
-    server = jenkins_connect()
     with open(template) as f:
         xml = f.read()
-        server.create_job(project.folder, xml)
+    server = jenkins_connect()
+    server.create_job(project.folder, xml)
+    return f'create folder {project.folder}'
+
+def update_folder(project):
+    return f'dummy update folder {project.folder}'
