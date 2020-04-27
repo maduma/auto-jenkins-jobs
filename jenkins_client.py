@@ -27,19 +27,19 @@ def is_folder_exists(folder):
     return is_job_exists(folder, pattern)
 
 # need mock to test
-def is_job_exists(job_name, xml_pattern):
+def is_job_exists(name, xml_pattern):
     server = jenkins_connect()
-    if not server.get_job_name(job_name):
+    if not server.get_job_name(name):
         return False
-    xml = server.get_job_config(job_name)
+    xml = server.get_job_config(name)
     if xml_pattern in xml:
         return xml
     return False
 
-def is_folder_updated(job_name):
+def is_folder_updated(folder):
     return True
 
-def is_pipeline_updated(job_name):
+def is_pipeline_updated(pipeline):
     return True
 
 def get_pipeline_state(project):
