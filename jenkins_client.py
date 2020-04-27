@@ -9,7 +9,6 @@ import collections
 
 PipelineState = collections.namedtuple('PipelineState', 'is_folder_exists, is_pipeline_exists is_folder_updated is_pipeline_updated', defaults=[True] * 4)
 
-# to test
 def is_jenkins_online():
     try:
         server = jenkins_connect()
@@ -36,10 +35,20 @@ def is_job_exists(name, xml_pattern):
     return False
 
 def is_folder_updated(folder):
-    return True
+    return is_job_xml_updated(folder, template='templates/folder.tmpl.xml')
 
 def is_pipeline_updated(pipeline):
-    return True
+    return is_job_xml_updated(pipeline, template='templates/pipeline.tmpl.xml')
+
+def is_job_xml_updated(name, template):
+    server = jenkins_connect()
+    job_xml = server.get_job_config(name)
+    job_version = get_job_type_and_version(get_description(job_xml))
+    with open(template) as f:
+        template_xml = f.read()
+    template_version = get_job_type_and_version(get_description(template_xml))
+    return template_version == job_version
+
 
 def get_pipeline_state(project):
     folder_exists = is_folder_exists(project.folder)
@@ -124,19 +133,16 @@ def update_job(project):
     server.reconfig_job(project.full_name, xml)
 
 def update_folder(project):
+    logging.info('update folder %s' % project.folder)
     pass
 
 def update_pipeline(project):
+    logging.info('update folder %s' % project.folder)
     pass
 
-def create_folder(folder_name):
-    logging.info('create folder %s' % folder_name)
+def create_folder(project, template='templates/folder.tmpl.xml'):
+    logging.info('create folder %s' % project.folder)
     server = jenkins_connect()
-    with open('templates/folder.xml') as f:
-        folder_xml = f.read()
-        server.create_job(folder_name, folder_xml)
-
-def build_job(job_name):
-    logging.info('build job %s' % job_name)
-    server = jenkins_connect()
-    server.build_job(job_name, parameters={'DEPLOY_TO': 'tst'})
+    with open(template) as f:
+        xml = f.read()
+        server.create_job(project.folder, xml)

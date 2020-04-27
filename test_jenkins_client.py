@@ -1,6 +1,6 @@
 from jenkins_client import is_job_up_to_date_xml, get_job_type_and_version, get_description
 from jenkins_client import create_xml, get_pipeline_state, PipelineState, is_job_exists
-from jenkins_client import jenkins_connect, create_job, update_job, create_folder, build_job
+from jenkins_client import jenkins_connect, create_job, update_job, create_folder
 from jenkins_client import is_folder_exists, is_pipeline_exists
 from autojj import Project
 import jenkins
@@ -68,7 +68,7 @@ def test_create_xml():
 def test_jenkins_connect(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     assert getattr(jenkins_connect(), 'server_created')
-    assert jenkins_connect().whoami = 'jenkins'
+    assert getattr(jenkins_connect(), 'whoami') == 'jenkins'
 
 def test_jenkins_create_job(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
@@ -85,16 +85,10 @@ def test_jenkins_update_job(monkeypatch):
         update_job(project)
     assert str(ex.value) == 'maduma/flutiste'
 
-def test_jenkins_created_folder(monkeypatch):
+def test_jenkins_create_folder(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     with pytest.raises(test_jenkins_mock.Job_created_exception) as ex:
-        create_folder('mule')
-    assert str(ex.value) == 'mule'
-
-def test_jenkins_build_job(monkeypatch):
-    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    with pytest.raises(test_jenkins_mock.Job_build_exception) as ex:
-        build_job('mule')
+        create_folder(Project(folder='mule'))
     assert str(ex.value) == 'mule'
 
 def test_is_folder_pipeline_exists(monkeypatch):
