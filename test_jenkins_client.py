@@ -107,7 +107,7 @@ def test_is_folder_pipeline_exists(monkeypatch):
 
 def test_is_job_exists_1(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    assert is_job_exists('my_job', 'XML') == 'XML'
+    assert is_job_exists('my_job', 'XML')
 
 def test_is_job_exists_2(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
