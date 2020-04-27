@@ -1,4 +1,4 @@
-from jenkins_client import get_job_type_and_version, get_description
+from jenkins_client import parse_description, get_description
 from jenkins_client import create_pipeline_xml, get_pipeline_state, PipelineState, is_job_exists
 from jenkins_client import jenkins_connect, create_folder
 from jenkins_client import is_folder_exists, is_pipeline_exists
@@ -43,18 +43,18 @@ def test_get_description_bad():
             xml = f.read()
             get_description(xml)
 
-def test_get_job_type_and_version_1():
-    assert get_job_type_and_version(
+def test_parse_description_version_1():
+    assert parse_description(
         'Auto Jenkins Job, mulePipeline:0.0.2'
         ) == { 'type': 'mulePipeline', 'version': '0.0.2'}
 
-def test_get_job_type_and_version_2():
-    assert get_job_type_and_version(
+def test_parse_description_version_2():
+    assert parse_description(
         'some other stuff before \n again \n blabla Auto Jenkins Job, mulePipeline:0.0.2 and other stuff after'
         ) == { 'type': 'mulePipeline', 'version': '0.0.2'}
 
-def test_get_job_type_and_version_empty():
-    assert get_job_type_and_version(None) == None
+def test_parse_description_version_empty():
+    assert parse_description(None) == None
 
 def test_create_pipeline_xml():
     project =  Project(id=0, full_name='maduma/dentiste', folder='maduma', short_name='dentiste', pipeline='phpPipeline',

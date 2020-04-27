@@ -77,7 +77,7 @@ def get_description(xml):
         raise(LookupError('Cannot find description'))
     return child.text
 
-def get_job_type_and_version(description):
+def parse_description(description):
     if not description:
         return None
     pattern = r'\s?Auto Jenkins Job, (\w+):(\S+)'
