@@ -1,5 +1,5 @@
 from jenkins_client import is_job_up_to_date_xml, get_job_type_and_version, get_description
-from jenkins_client import create_xml
+from jenkins_client import create_xml, get_pipeline_state, PipelineState
 from jenkins_client import jenkins_connect, create_job, update_job, create_folder, build_job
 from autojj import Project
 import jenkins
@@ -94,4 +94,48 @@ def test_jenkins_build_job(monkeypatch):
     with pytest.raises(test_jenkins_mock.Job_build_exception) as ex:
         build_job('mule')
     assert str(ex.value) == 'mule'
+
+def test_pipeline_state_1(monkeypatch):
+    project = Project(full_name="FULL_NAME", folder='FOLDER')
+    monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: folder == 'FOLDER')
+    monkeypatch.setattr(jenkins_client, 'is_folder_updated', lambda folder: folder == 'FOLDER')
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_exists', lambda pipeline: pipeline == 'FULL_NAME')
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_updated', lambda pipeline: pipeline == 'FULL_NAME')
+    state = PipelineState()
+    assert get_pipeline_state(project) == state
+   
+def test_pipeline_state_2(monkeypatch):
+    monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: False)
+    state = PipelineState(is_folder_exists=False, is_pipeline_exists=False)
+    assert get_pipeline_state(Project()) == state
+
+def test_pipeline_state_3(monkeypatch):
+    monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_folder_updated', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_exists', lambda folder: False)
+    state = PipelineState(is_folder_exists=True, is_folder_updated=True, is_pipeline_exists=False)
+    assert get_pipeline_state(Project()) == state
+
+def test_pipeline_state_4(monkeypatch):
+    monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_folder_updated', lambda folder: False)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_exists', lambda folder: False)
+    state = PipelineState(is_folder_exists=True, is_folder_updated=False, is_pipeline_exists=False)
+    assert get_pipeline_state(Project()) == state
+   
+def test_pipeline_state_5(monkeypatch):
+    monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_folder_updated', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_updated', lambda folder: False)
+    state = PipelineState(is_folder_exists=True, is_folder_updated=True, is_pipeline_exists=True, is_pipeline_updated=False)
+    assert get_pipeline_state(Project()) == state
+   
+def test_pipeline_state_6(monkeypatch):
+    monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_folder_updated', lambda folder: False)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_updated', lambda folder: True)
+    state = PipelineState(is_folder_exists=True, is_folder_updated=False, is_pipeline_exists=True, is_pipeline_updated=True)
+    assert get_pipeline_state(Project()) == state
    

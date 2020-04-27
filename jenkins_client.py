@@ -43,17 +43,16 @@ def is_pipeline_updated(job_name):
     return True
 
 def get_pipeline_state(project):
-    folder_exists = is_folder_exists(project)
-
+    folder_exists = is_folder_exists(project.folder)
     folder_updated = True
-    if folder_exists:
-        folder_updated = is_folder_updated(project)
-
-    pipeline_exists = is_pipeline_exists(project)
-
+    pipeline_exists = False
     pipeline_updated = True
-    if pipeline_exists:
-        pipeline_updated = is_pipeline_updated(project)
+
+    if folder_exists:
+        folder_updated = is_folder_updated(project.folder)
+        pipeline_exists = is_pipeline_exists(project.full_name)
+        if pipeline_exists:
+            pipeline_updated = is_pipeline_updated(project.full_name)
 
     return PipelineState(
         is_folder_exists=folder_exists,
