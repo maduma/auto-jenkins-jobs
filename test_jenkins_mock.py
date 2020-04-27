@@ -31,3 +31,12 @@ class MockResponse:
 
     def build_job(self, name, parameters=None):
         raise Job_build_exception(name)
+
+    def get_job_name(self, name):
+        if name != 'NO_JOB':
+            return name
+        else:
+            return False
+
+    def get_job_config(self, name):
+        return 'XML'

@@ -26,7 +26,6 @@ def is_folder_exists(folder):
     pattern = '<com.cloudbees.hudson.plugins.folder.Folder plugin="cloudbees-folder@'
     return is_job_exists(folder, pattern)
 
-# need mock to test
 def is_job_exists(name, xml_pattern):
     server = jenkins_connect()
     if not server.get_job_name(name):

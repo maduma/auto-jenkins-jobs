@@ -1,6 +1,7 @@
 from jenkins_client import is_job_up_to_date_xml, get_job_type_and_version, get_description
-from jenkins_client import create_xml, get_pipeline_state, PipelineState
+from jenkins_client import create_xml, get_pipeline_state, PipelineState, is_job_exists
 from jenkins_client import jenkins_connect, create_job, update_job, create_folder, build_job
+from jenkins_client import is_folder_exists, is_pipeline_exists
 from autojj import Project
 import jenkins
 import responses
@@ -94,6 +95,27 @@ def test_jenkins_build_job(monkeypatch):
     with pytest.raises(test_jenkins_mock.Job_build_exception) as ex:
         build_job('mule')
     assert str(ex.value) == 'mule'
+
+def test_is_folder_pipeline_exists(monkeypatch):
+    def is_job_exists_mock(name, pattern):
+        if not pattern:
+            raise Exception('Pattern should not be null')
+        return name
+    monkeypatch.setattr(jenkins_client, 'is_job_exists', is_job_exists_mock)
+    assert is_folder_exists('my_folder') == 'my_folder'
+    assert is_pipeline_exists('my_folder') == 'my_folder'
+
+def test_is_job_exists_1(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
+    assert is_job_exists('my_job', 'XML') == 'XML'
+
+def test_is_job_exists_2(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
+    assert not is_job_exists('NO_JOB', 'XML')
+
+def test_is_job_exists_3(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
+    assert not is_job_exists('my_job', 'BAD_PATTERN')
 
 def test_pipeline_state_1(monkeypatch):
     project = Project(full_name="FULL_NAME", folder='FOLDER')
