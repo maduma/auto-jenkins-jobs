@@ -18,13 +18,13 @@ def is_jenkins_online():
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
 
-def is_pipeline_exists(job_name):
+def is_pipeline_exists(pipeline):
     pattern =  '<flow-definition plugin="workflow-job@'
-    return is_job_exists(job_name, pattern)
+    return is_job_exists(pipeline, pattern)
 
-def is_folder_exists(folder_name):
+def is_folder_exists(folder):
     pattern = '<com.cloudbees.hudson.plugins.folder.Folder plugin="cloudbees-folder@'
-    return is_job_exists(folder_name, pattern)
+    return is_job_exists(folder, pattern)
 
 # need mock to test
 def is_job_exists(job_name, xml_pattern):
