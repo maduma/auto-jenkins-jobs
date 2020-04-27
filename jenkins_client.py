@@ -69,16 +69,6 @@ def get_pipeline_state(project):
         is_pipeline_updated=pipeline_updated
     )
 
-def is_job_up_to_date_xml(jenkins_job_xml, template='templates/pipeline.tmpl.xml'):
-    job_version = get_job_type_and_version(get_description(jenkins_job_xml))
-    with open(template) as f:
-        template_xml = f.read()
-        template_version = get_job_type_and_version(get_description(template_xml))
-        print(job_version, template_version)
-        if job_version == template_version:
-            return True
-    return False
-
 def get_description(xml):
     root = ET.fromstring(xml)
     for child in root:
@@ -96,13 +86,14 @@ def get_job_type_and_version(description):
         return {'type': match[1], 'version': match[2]}
     return None
 
-def create_xml(project, template='templates/pipeline.tmpl.xml'):
+def create_pipeline_xml(project, template='templates/pipeline.tmpl.xml',
+               gitlab_creds_id=settings.JENKINS_GITLAB_CREDS_ID):
     with open(template) as f:
         xml = f.read()
         xml = xml.format(
             job_name=project.short_name,
             git_http_url=project.git_http_url,
-            git_creds_id='gitlab_maduma_org',
+            git_creds_id=gitlab_creds_id,
             gitlab_connection='',
         )
         return xml
@@ -117,20 +108,11 @@ def jenkins_connect():
     server.get_whoami()
     return server
 
-def create_job(project):
-    logging.info('create project %s' % project.full_name)
-    xml = create_xml(project)
+def create_pipeline(project):
+    logging.info('create pipeline %s' % project.full_name)
+    xml = create_pipeline_xml(project)
     server = jenkins_connect()
     server.create_job(project.full_name, xml)
-
-def create_pipeline(project):
-    pass
-
-def update_job(project):
-    logging.info('update project %s' % project.full_name)
-    xml = create_xml(project)
-    server = jenkins_connect()
-    server.reconfig_job(project.full_name, xml)
 
 def update_folder(project):
     logging.info('update folder %s' % project.folder)
@@ -138,6 +120,7 @@ def update_folder(project):
 
 def update_pipeline(project):
     logging.info('update folder %s' % project.folder)
+    #server.reconfig_job(project.full_name, xml)
     pass
 
 def create_folder(project, template='templates/folder.tmpl.xml'):
