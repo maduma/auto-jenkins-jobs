@@ -11,6 +11,11 @@ def get_logger(name):
     logger.setLevel(log_level)
     return logger
 
+def obfuscate(secret):
+    if len(secret) > 6:
+        return secret[:2] + '..' + secret[-2:]
+    return 'to_short_to_obfuscate'
+
 logger = get_logger(__name__)
 
 AUTOJJ_VERSION = '__VERSION__'
@@ -26,10 +31,10 @@ PROJECT_TYPES = os.environ.get('PROJECT_TYPES', 'mulePipeline').split(',')
 
 logger.debug(AUTOJJ_VERSION)
 logger.debug(GITLAB_URL)
-logger.debug(GITLAB_PRIVATE_TOKEN)
+logger.debug(obfuscate(GITLAB_PRIVATE_TOKEN))
 logger.debug(JENKINS_URL)
-logger.debug(JENKINS_USERNAME)
-logger.debug(JENKINS_PASSWORD)
-logger.debug(JENKINS_GITLAB_CREDS_ID)
-logger.debug(JENKINS_GITLAB_TRIGGER_SECRET)
+logger.debug(obfuscate(JENKINS_USERNAME))
+logger.debug(obfuscate(JENKINS_PASSWORD))
+logger.debug(obfuscate(JENKINS_GITLAB_CREDS_ID))
+logger.debug(obfuscate(JENKINS_GITLAB_TRIGGER_SECRET))
 logger.debug(PROJECT_TYPES)
