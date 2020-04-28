@@ -15,7 +15,7 @@ def event():
     is_gitlab_system_event = request.headers.get('X-Gitlab-Event') == 'System Hook'
     if is_gitlab_system_event and request.is_json:
         event = request.get_json()
-        return autojj.process_event(event)
+        return autojj.process_event(event), 200
     else:
         return {'description': "Can only process valid Gitlab System Hook"}, 400
 
