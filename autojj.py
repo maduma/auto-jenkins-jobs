@@ -1,5 +1,4 @@
 import re
-import logging
 import collections
 import settings
 import jenkins_client
@@ -49,7 +48,7 @@ def parse_event(event):
 
     project = Project(id=project_id, git_http_url=git_http_url)
     jenkinsfile = gitlab_client.get_jenkinsfile(project)
-    pipeline = is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES)
+    pipeline = is_autojj_project(jenkinsfile)
     
     project = Project(
       id = project_id,
@@ -61,13 +60,13 @@ def parse_event(event):
     )
     return project
 
-def is_autojj_project(jenkinsfile, types):
+def is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES):
     if not jenkinsfile:
         return False
     # look for groovy method
     for type in types:
         if not re.match(r'\w+', type):
-            logging.error(f'Project type: {type} is not a word')
+            logger.error(f'Project type: {type} is not a word')
             return False
         regex = r'(\s|^)({})(\s|\()'.format(type)
         pattern = re.compile(regex)

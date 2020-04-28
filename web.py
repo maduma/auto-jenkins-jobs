@@ -1,6 +1,4 @@
 from flask import Flask, request
-import time
-import os
 import autojj
 import gitlab_client
 import jenkins_client
