@@ -35,7 +35,7 @@ def is_job_exists(name, xml_pattern):
         return False
     xml = server.get_job_config(name)
     if xml_pattern in xml:
-        logging.debug(f'Cannot parse job type for {name}')
+        logging.debug(f'Cannot parse job type for {name}, cannot found - {xml_pattern} -')
         return True
     return False
 
