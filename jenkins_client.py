@@ -63,16 +63,20 @@ def get_description(xml):
     for child in root:
         if child.tag == 'description': break
     else:
-        raise(LookupError('Cannot find description'))
+        raise(LookupError('Cannot find description in job xml'))
     return child.text
 
 def parse_description(description):
     if not description:
+        logger.debug('description is empty')
         return None
     pattern = r'\s?Auto Jenkins Job, (\w+):(\S+)'
     match = re.search(pattern, description)
     if match:
-        return {'type': match[1], 'version': match[2]}
+        version_type = match[1]
+        version = match[2]
+        logger.debug(f'autojj description found: {version_type}, {version}')
+        return {'type': version_type, 'version': version}
     return None
 
 def get_pipeline_state(project):
@@ -87,12 +91,15 @@ def get_pipeline_state(project):
         if pipeline_exists:
             pipeline_updated = is_pipeline_updated(project.full_name)
 
-    return PipelineState(
+    state = PipelineState(
         is_folder_exists=folder_exists,
         is_folder_updated=folder_updated,
         is_pipeline_exists=pipeline_exists,
         is_pipeline_updated=pipeline_updated
     )
+    logger.debug(project)
+    logger.debug(state)
+    return state
 
 def create_pipeline_xml(
     project,
@@ -122,17 +129,24 @@ def create_pipeline(project):
     xml = create_pipeline_xml(project)
     server = jenkins_connect()
     server.create_job(project.full_name, xml)
-    return f'create pipeline {project.full_name}'
+    msg = f'create pipeline {project.full_name}'
+    logger.info(msg)
+    return msg
 
 def update_pipeline(project):
-    return f'dummy update pipeline {project.full_name}'
+    msg = f'dummy update pipeline {project.full_name}'
+    logger.info(msg)
+    return msg
 
 def create_folder(project, template='templates/folder.tmpl.xml'):
     with open(template) as f:
         xml = f.read()
     server = jenkins_connect()
     server.create_job(project.folder, xml)
-    return f'create folder {project.folder}'
+    msg = f'create folder {project.folder}'
+    logger.info(msg)
+    return msg
 
 def update_folder(project):
-    return f'dummy update folder {project.folder}'
+    msg = f'dummy update folder {project.folder}'
+    return msg

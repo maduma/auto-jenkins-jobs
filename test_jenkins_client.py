@@ -39,23 +39,6 @@ def test_is_job_xml_updated_3(monkeypatch):
 def test_get_version(monkeypatch):
     assert get_version('<top><description>Auto Jenkins Job, mulePipeline:0.0.2</description></top>') == {'type': 'mulePipeline', 'version': '0.0.2'}
 
-
-'''
-def test_is_up_to_date_good():
-    with open('test_job_good.xml', 'r') as f:
-        job_xml = f.read()
-        assert is_job_up_to_date_xml(job_xml, template='test_pipeline.tmpl.xml') == True
-
-def test_is_up_to_date_old1():
-    with open('test_job_old1.xml', 'r') as f:
-        xml = f.read()
-        assert is_job_up_to_date_xml(xml, template='test_pipeline.tmpl.xml') == False
-def test_is_up_to_date_old2():
-    with open('test_job_old2.xml', 'r') as f:
-        xml = f.read()
-        assert is_job_up_to_date_xml(xml, template='test_pipeline.tmpl.xml') == False
-'''
-
 def test_get_description():
     with open('test_job_good.xml', 'r') as f:
         xml = f.read()
