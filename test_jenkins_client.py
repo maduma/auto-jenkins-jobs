@@ -1,7 +1,7 @@
 from jenkins_client import parse_description, get_description
 from jenkins_client import create_pipeline_xml, get_pipeline_state, PipelineState, is_job_exists
 from jenkins_client import jenkins_connect, create_folder
-from jenkins_client import is_folder_exists, is_pipeline_exists, is_jenkins_online, is_job_xml_updated
+from jenkins_client import is_folder_exists, is_pipeline_exists, is_jenkins_online, is_job_xml_updated, get_version
 from autojj import Project
 import jenkins
 import responses
@@ -35,6 +35,9 @@ def test_is_job_xml_updated_2(monkeypatch):
 def test_is_job_xml_updated_3(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     assert is_job_xml_updated('job3', template='test_pipeline.tmpl.xml')
+
+def test_get_version(monkeypatch):
+    assert get_version('<top><description>Auto Jenkins Job, mulePipeline:0.0.2</description></top>') == {'type': 'mulePipeline', 'version': '0.0.2'}
 
 
 '''
