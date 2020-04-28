@@ -21,7 +21,7 @@ def process_event(event):
     if project:
         if project.pipeline:
             logs = install_pipeline(project)
-            return logs, 200
+            return '\n'.join(logs), 200
         else:
             msg = "Unknown Jenkins Pipeline"
             logger.info(msg)

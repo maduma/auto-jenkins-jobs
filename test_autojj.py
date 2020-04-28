@@ -101,7 +101,7 @@ def test_process_event(monkeypatch):
     project = Project(pipeline = 'phpPipeline')
     monkeypatch.setattr(autojj, "parse_event", lambda x: project)
     monkeypatch.setattr(autojj, "install_pipeline", lambda x: ['DONE'])
-    assert process_event({'event_name': 'repository_update'}) == (['DONE'], 200)
+    assert process_event({'event_name': 'repository_update'}) == ('DONE', 200)
 
 
 def get_pipeline_state_mock(states):
