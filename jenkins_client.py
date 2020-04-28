@@ -149,4 +149,5 @@ def create_folder(project, template='templates/folder.tmpl.xml'):
 
 def update_folder(project):
     msg = f'dummy update folder {project.folder}'
+    logger.info(msg)
     return msg

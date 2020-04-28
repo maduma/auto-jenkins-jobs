@@ -1,4 +1,4 @@
-![Design of auto jenkins jobs](design.jpg)
+![Design of auto jenkins jobs](images/design.jpg)
 
 ## gitlab system hook
 - Repository Upadate events
