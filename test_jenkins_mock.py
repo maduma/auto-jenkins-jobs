@@ -45,8 +45,13 @@ class MockResponse:
     def get_job_name(self, name):
         if name != 'NO_JOB':
             return name
-        else:
-            return False
+        return False
 
     def get_job_config(self, name):
+        if name == 'job1':
+            return "<top><description></description></top>"
+        elif name == 'job2':
+            return "<top><description>Auto Jenkins Job, mulePipeline:0.0.1</description></top>"
+        elif name == 'job3':
+            return "<top><description>Auto Jenkins Job, mulePipeline:0.0.2</description></top>"
         return 'XML'
