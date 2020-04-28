@@ -2,7 +2,7 @@ import os
 import logging
 
 logging.basicConfig()
-log_level = logging.getLogger('gunicorrn.error').level
+log_level = logging.getLogger('gunicorn.error').level
 if not log_level: # not running gunicorn:
     log_level = logging.DEBUG
 
