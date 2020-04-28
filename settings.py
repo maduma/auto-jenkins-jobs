@@ -4,7 +4,7 @@ import logging
 logging.basicConfig()
 log_level = logging.getLogger('gunicorrn.error').level
 if not log_level: # not running gunicorn:
-    log_level = logging.INFO
+    log_level = logging.DEBUG
 
 def get_logger(name):
     logger = logging.getLogger(name)

@@ -31,11 +31,11 @@ def is_folder_exists(folder):
 def is_job_exists(name, xml_pattern):
     server = jenkins_connect()
     if not server.get_job_name(name):
-        logging.debug(f'job {name} do not exists')
+        logger.debug(f'job {name} do not exists')
         return False
     xml = server.get_job_config(name)
     if xml_pattern in xml:
-        logging.debug(f'Cannot parse job type for {name}, cannot found - {xml_pattern} -')
+        logger.debug(f'Cannot parse job type for {name}, cannot found - {xml_pattern} -')
         return True
     return False
 
