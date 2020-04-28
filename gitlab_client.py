@@ -35,7 +35,7 @@ def is_webhook_installed(project, jenkins_url=settings.JENKINS_URL):
     for hook in hooks:
         hook_url = hook['url']
         hook_project_id = hook['project_id']
-        logger.info(f"{hook_url}:{jenkins_hook_url} {hook_project_id}:{project.id}")
+        logger.debug(f"{hook_url}:{jenkins_hook_url} {hook_project_id}:{project.id}")
 
         if hook_url == jenkins_hook_url and hook_project_id == project.id:
             logger.info("hook already installed")
