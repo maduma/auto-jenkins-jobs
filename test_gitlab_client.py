@@ -53,7 +53,7 @@ def test_install_webhook_1(monkeypatch):
     assert json.loads(responses.calls[0].request.body.decode('utf-8')) == {
         'id': 7,
         'url': 'https://jenkins.maduma.org/project/maduma/pompiste',
-        'push_events': True,
+        'push_events': False,
         'tag_push_events': True,
         'token': 'gitlab_trigger_token',
         }

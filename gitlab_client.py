@@ -51,7 +51,7 @@ def install_webhook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=se
     data = {
         "id": project.id,
         "url": jenkins_url + '/project/' + project.full_name,
-        "push_events": True,
+        "push_events": False,
         "tag_push_events": True,
         "token": jenkins_gitlab_trigger_secret,
     }
