@@ -1,42 +1,11 @@
 <?xml version='1.1' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job@2.37">
-  <actions>
-    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.6.0"/>
-    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.6.0">
-      <jobProperties/>
-      <triggers/>
-      <parameters/>
-      <options/>
-    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
-  </actions>
-  <description>Auto Jenkins Job, mulePipeline:0.0.2</description>
+  <description>Auto Jenkins Job, mulePipeline:0.0.1</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.13">
       <gitLabConnection>maduma</gitLabConnection>
     </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
-    <hudson.model.ParametersDefinitionProperty>
-      <parameterDefinitions>
-        <io.jenkins.plugins.luxair.ImageTagParameterDefinition plugin="image-tag-parameter@1.2">
-          <name>DOCKER_IMAGE</name>
-          <description></description>
-	  <image>maduma/{job_name}</image>
-          <registry>https://registry-1.docker.io</registry>
-          <filter>.*</filter>
-          <credentialId>registry</credentialId>
-        </io.jenkins.plugins.luxair.ImageTagParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>DEPLOY_TO</name>
-          <description></description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>tst</string>
-              <string>prd</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-      </parameterDefinitions>
-    </hudson.model.ParametersDefinitionProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
         <com.dabsquared.gitlabjenkins.GitLabPushTrigger plugin="gitlab-plugin@1.5.13">
@@ -58,7 +27,7 @@
           <excludeBranchesSpec></excludeBranchesSpec>
           <sourceBranchRegex></sourceBranchRegex>
           <targetBranchRegex></targetBranchRegex>
-	  <secretToken>{{AQAAABAAAAAQC5/+Q7uo9J9bdBbDKC+fm69ZSM9RSveLPP/x0PPpb10=}}</secretToken>
+          <secretToken>{AQAAABAAAAAwFRHMno4ZTj2SlvscbfWH9g/gyNggjtD/WMqsAVk+mUOUNb87kDrqpkP5sLVr/glHLWxnuW6ltdk852pfz7La7Q==}</secretToken>
           <pendingBuildName></pendingBuildName>
           <cancelPendingBuildsOnUpdate>false</cancelPendingBuildsOnUpdate>
         </com.dabsquared.gitlabjenkins.GitLabPushTrigger>
@@ -70,8 +39,8 @@
       <configVersion>2</configVersion>
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
-		<url>{git_http_url}</url>
-		<credentialsId>{git_creds_id}</credentialsId>
+	  <url>{git_http_url}</url>
+	  <credentialsId>{git_creds_id}</credentialsId>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
