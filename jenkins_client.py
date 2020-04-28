@@ -7,14 +7,17 @@ import logging
 import settings
 import collections
 
+logger = settings.get_logger(__name__)
+
 PipelineState = collections.namedtuple('PipelineState', 'is_folder_exists, is_pipeline_exists is_folder_updated is_pipeline_updated', defaults=[True] * 4)
 
 def is_jenkins_online():
     try:
-        server = jenkins_connect()
-        server.get_version()
+        server = jenkins_connect() # no request done to jenkins server
+        server.get_whoami()        # will actually do the request to the server
         return {'status': 'online'}
     except Exception as e:
+        logger.error(f'Cannot connecto to Jenkins: {str(e)}')
         return {'status': 'error', 'message': str(e)}
 
 def is_pipeline_exists(pipeline):
@@ -28,9 +31,11 @@ def is_folder_exists(folder):
 def is_job_exists(name, xml_pattern):
     server = jenkins_connect()
     if not server.get_job_name(name):
+        logging.debug(f'job {name} do not exists')
         return False
     xml = server.get_job_config(name)
     if xml_pattern in xml:
+        logging.debug(f'Cannot parse job type for {name}')
         return True
     return False
 
@@ -111,7 +116,6 @@ def jenkins_connect():
         password=settings.JENKINS_PASSWORD,
         timeout=2,
         )
-    server.get_whoami()
     return server
 
 def create_pipeline(project):

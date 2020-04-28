@@ -18,9 +18,18 @@ class MockResponse:
 
     def __init__(self, server, username, password, timeout):
         self.server_created = True
+        print(server)
+        if server == 'BAD':
+            raise Exception('SERVER_ERROR')
+        if password == 'BAD':
+            raise Exception('AUTHENTICATION_ERROR')
         pass
 
     def get_whoami(self):
+        self.whoami = 'jenkins'
+        pass 
+
+    def get_version(self):
         self.whoami = 'jenkins'
         pass 
 

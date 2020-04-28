@@ -1,20 +1,28 @@
 from jenkins_client import parse_description, get_description
 from jenkins_client import create_pipeline_xml, get_pipeline_state, PipelineState, is_job_exists
 from jenkins_client import jenkins_connect, create_folder
-from jenkins_client import is_folder_exists, is_pipeline_exists
+from jenkins_client import is_folder_exists, is_pipeline_exists, is_jenkins_online
 from autojj import Project
 import jenkins
 import responses
 import pytest
 import test_jenkins_mock
 import jenkins_client
+import settings
 
-def test_is_jenkins_online_good():
-    #responses.add(responses.GET, 'http://172.10.23.3/crumbIssuer/api/json')
-    #responses.add(responses.GET, 'http://172.10.23.3/me/api/json?depth=0')
-    #online = isJenkinsOnline('http://172.10.23.3/', user='jhon', password='reddaser')
-    #assert online == True
-    assert True == True
+def test_is_jenkins_online_good(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
+    assert is_jenkins_online() == {'status': 'online'}
+
+def test_is_jenkins_online_bad_1(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
+    monkeypatch.setattr(settings, "JENKINS_URL", "BAD")
+    assert is_jenkins_online() == {'status': 'error', 'message': 'SERVER_ERROR'}
+
+def test_is_jenkins_online_bad_2(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
+    monkeypatch.setattr(settings, "JENKINS_PASSWORD", "BAD")
+    assert is_jenkins_online() == {'status': 'error', 'message': 'AUTHENTICATION_ERROR'}
 
 '''
 def test_is_up_to_date_good():
@@ -70,7 +78,6 @@ def test_create_pipeline_xml():
 def test_jenkins_connect(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     assert getattr(jenkins_connect(), 'server_created')
-    assert getattr(jenkins_connect(), 'whoami') == 'jenkins'
 
 def test_jenkins_create_folder(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)

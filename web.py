@@ -27,6 +27,6 @@ def health():
     jenkins_status = jenkins_client.is_jenkins_online()
     gitlab_status = gitlab_client.is_gitlab_online()
     if jenkins_status['status'] == 'online' and gitlab_status['status'] == 'online':
-        return {'status': 'pass', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status, 'gitlab': gitlab_status}
+        return {'status': 'online', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status, 'gitlab': gitlab_status}
     else:
         return {'status': 'degraded', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status, 'gitlab': gitlab_status}

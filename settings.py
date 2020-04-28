@@ -1,10 +1,17 @@
 import os
 import logging
 
-gunicorn_log_level = logging.getLogger('gunicorn.error').level
 logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(gunicorn_log_level)
+log_level = logging.getLogger('gunicorrn.error').level
+if not log_level: # not running gunicorn:
+    log_level = logging.INFO
+
+def get_logger(name):
+    logger = logging.getLogger(name)
+    logger.setLevel(log_level)
+    return logger
+
+logger = get_logger(__name__)
 
 AUTOJJ_VERSION = '__VERSION__'
 GITLAB_URL = os.environ.get('GITLAB_URL','unknown')
