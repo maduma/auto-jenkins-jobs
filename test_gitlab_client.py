@@ -48,12 +48,14 @@ def test_install_webhook_1(monkeypatch):
         git_http_url = 'https://gitlab.maduma.org/maduma/pompiste.git',
         full_name = 'maduma/pompiste',
     )
-    assert install_webhook(project, token='thisisatoken', jenkins_url='https://jenkins.maduma.org')
+    assert install_webhook(project, token='thisisatoken', jenkins_url='https://jenkins.maduma.org',
+        jenkins_gitlab_trigger_secret='gitlab_trigger_token')
     assert json.loads(responses.calls[0].request.body.decode('utf-8')) == {
         'id': 7,
         'url': 'https://jenkins.maduma.org/project/maduma/pompiste',
         'push_events': True,
         'tag_push_events': True,
+        'token': 'gitlab_trigger_token',
         }
 
 def test_install_web_hook2(monkeypatch):

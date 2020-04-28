@@ -20,6 +20,7 @@ JENKINS_URL = os.environ.get('JENKINS_URL', 'unknown')
 JENKINS_USERNAME = os.environ.get('JENKINS_USERNAME', 'unknown')
 JENKINS_PASSWORD = os.environ.get('JENKINS_PASSWORD', 'unknown')
 JENKINS_GITLAB_CREDS_ID = os.environ.get('JENKINS_GITLAB_CREDS_ID', 'unknown')
+JENKINS_GITLAB_TRIGGER_SECRET = os.environ.get('JENKINS_GITLAB_TRIGGER_SECRET', 'unknown')
 
 PROJECT_TYPES = os.environ.get('PROJECT_TYPES', 'mulePipeline').split(',')
 
@@ -30,4 +31,5 @@ logger.debug(JENKINS_URL)
 logger.debug(JENKINS_USERNAME)
 logger.debug(JENKINS_PASSWORD)
 logger.debug(JENKINS_GITLAB_CREDS_ID)
+logger.debug(JENKINS_GITLAB_TRIGGER_SECRET)
 logger.debug(PROJECT_TYPES)
