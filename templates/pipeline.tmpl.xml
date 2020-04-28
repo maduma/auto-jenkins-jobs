@@ -27,7 +27,7 @@
           <excludeBranchesSpec></excludeBranchesSpec>
           <sourceBranchRegex></sourceBranchRegex>
           <targetBranchRegex></targetBranchRegex>
-          <secretToken>{AQAAABAAAAAwFRHMno4ZTj2SlvscbfWH9g/gyNggjtD/WMqsAVk+mUOUNb87kDrqpkP5sLVr/glHLWxnuW6ltdk852pfz7La7Q==}</secretToken>
+          <secretToken>{{AQAAABAAAAAwFRHMno4ZTj2SlvscbfWH9g/gyNggjtD/WMqsAVk+mUOUNb87kDrqpkP5sLVr/glHLWxnuW6ltdk852pfz7La7Q==}}</secretToken>
           <pendingBuildName></pendingBuildName>
           <cancelPendingBuildsOnUpdate>false</cancelPendingBuildsOnUpdate>
         </com.dabsquared.gitlabjenkins.GitLabPushTrigger>

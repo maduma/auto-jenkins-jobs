@@ -74,6 +74,13 @@ def test_create_pipeline_xml():
 <credentialsId>unknown</credentialsId>
 """
 
+def test_create_pipeline_xml_default_template():
+    project =  Project(id=0, full_name='maduma/dentiste', folder='maduma', short_name='dentiste', pipeline='phpPipeline',
+        git_http_url = 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git',
+    )
+    xml = create_pipeline_xml(project)
+    assert xml.startswith('<')
+
 def test_jenkins_connect(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
     assert getattr(jenkins_connect(), 'server_created')
