@@ -133,6 +133,33 @@ def test_pipeline_state_3(monkeypatch):
     state = PipelineState(is_folder_exists=True, is_folder_updated=True, is_pipeline_exists=False)
     assert get_pipeline_state(Project()) == state
 
+### update not implemented -> always return updated
+def test_pipeline_state_4(monkeypatch):
+    monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_folder_updated', lambda folder: False)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_exists', lambda folder: False)
+    state = PipelineState(is_pipeline_exists=False)
+    assert get_pipeline_state(Project()) == state
+   
+### update not implemented -> always return updated
+def test_pipeline_state_5(monkeypatch):
+    monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_folder_updated', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_updated', lambda folder: False)
+    state = PipelineState()
+    assert get_pipeline_state(Project()) == state
+   
+### update not implemented -> always return updated
+def test_pipeline_state_6(monkeypatch):
+    monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_folder_updated', lambda folder: False)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_exists', lambda folder: True)
+    monkeypatch.setattr(jenkins_client, 'is_pipeline_updated', lambda folder: True)
+    state = PipelineState()
+    assert get_pipeline_state(Project()) == state
+
+''' When pipeline/folder update will be implemented
 def test_pipeline_state_4(monkeypatch):
     monkeypatch.setattr(jenkins_client, 'is_folder_exists', lambda folder: True)
     monkeypatch.setattr(jenkins_client, 'is_folder_updated', lambda folder: False)
@@ -155,4 +182,4 @@ def test_pipeline_state_6(monkeypatch):
     monkeypatch.setattr(jenkins_client, 'is_pipeline_updated', lambda folder: True)
     state = PipelineState(is_folder_exists=True, is_folder_updated=False, is_pipeline_exists=True, is_pipeline_updated=True)
     assert get_pipeline_state(Project()) == state
-   
+'''
