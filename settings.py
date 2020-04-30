@@ -18,7 +18,7 @@ def obfuscate(secret):
 
 logger = get_logger(__name__)
 
-AUTOJJ_VERSION = '__VERSION__'
+AUTOJJ_VERSION = os.environ.get('AUTOJJ_VERSION','unknown')
 GITLAB_URL = os.environ.get('GITLAB_URL','unknown')
 GITLAB_PRIVATE_TOKEN = os.environ.get('GITLAB_PRIVATE_TOKEN','unknown')
 JENKINS_URL = os.environ.get('JENKINS_URL', 'unknown')
