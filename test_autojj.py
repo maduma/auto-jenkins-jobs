@@ -156,11 +156,11 @@ def test_install_pipeline_5(monkeypatch):
 def test_install_pipeline_6(monkeypatch):
     install_pipeline_monkeypatch(monkeypatch, states=[
         PipelineState(is_pipeline_exists=False, is_folder_updated=False),
-        PipelineState(is_pipeline_exists=False),
+        PipelineState(is_folder_updated=False),
         ALL_GOOD_STATE,
     ])
     project = Project(full_name = 'infra/autojj', folder = 'infra')
-    assert install_pipeline(project) == ['Update folder infra', 'Create pipeline infra/autojj', 'Install GitLab webhook for infra/autojj']
+    assert install_pipeline(project) == ['Create pipeline infra/autojj', 'Install GitLab webhook for infra/autojj', 'Update folder infra']
 
 def test_install_pipeline_7(monkeypatch):
     install_pipeline_monkeypatch(monkeypatch, states=[
