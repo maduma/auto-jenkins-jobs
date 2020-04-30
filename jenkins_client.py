@@ -38,10 +38,12 @@ def is_job_exists(name, xml_pattern):
     return False
 
 def is_folder_updated(folder):
-    return is_job_xml_updated(folder, template='templates/folder.tmpl.xml')
+    #return is_job_xml_updated(folder, template='templates/folder.tmpl.xml')
+    return True
 
 def is_pipeline_updated(pipeline):
-    return is_job_xml_updated(pipeline, template='templates/pipeline.tmpl.xml')
+    #return is_job_xml_updated(pipeline, template='templates/pipeline.tmpl.xml')
+    return True
 
 def is_job_xml_updated(name, template):
     server = jenkins_connect()
@@ -84,10 +86,10 @@ def get_pipeline_state(project):
     pipeline_updated = True
 
     if folder_exists:
-        #folder_updated = is_folder_updated(project.folder)
+        folder_updated = is_folder_updated(project.folder)
         pipeline_exists = is_pipeline_exists(project.full_name)
-        #if pipeline_exists:
-        #    pipeline_updated = is_pipeline_updated(project.full_name)
+        if pipeline_exists:
+            pipeline_updated = is_pipeline_updated(project.full_name)
 
     state = PipelineState(
         is_folder_exists=folder_exists,
