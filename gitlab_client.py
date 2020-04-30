@@ -44,7 +44,13 @@ def is_webhook_installed(project, jenkins_url=settings.JENKINS_URL):
     logger.info("hook not already installed")
     return False
 
-def install_webhook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=settings.JENKINS_URL, jenkins_gitlab_trigger_secret=settings.GITLAB_JENKINS_TRIGGER_SECRET):
+def install_webhook(
+    project,
+    token=settings.GITLAB_PRIVATE_TOKEN,
+    jenkins_url=settings.JENKINS_URL,
+    trigger_secret=settings.GITLAB_JENKINS_TRIGGER_SECRET,
+    ssl=settings.GITLAB_JENKINS_TRIGGER_SSL,
+    ):
     if is_webhook_installed(project):
         return f'GitLab webhook already installed for {project.full_name}' 
 
@@ -53,7 +59,8 @@ def install_webhook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=se
         "url": jenkins_url + '/project/' + project.full_name,
         "push_events": False,
         "tag_push_events": True,
-        "token": jenkins_gitlab_trigger_secret,
+        "token": trigger_secret,
+        "enable_ssl_verification": ssl,
     }
     gitlab_url = '/'.join(project.git_http_url.split('/')[:3])
     url = f'{gitlab_url}/api/v4/projects/{project.id}/hooks'

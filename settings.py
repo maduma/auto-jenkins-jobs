@@ -26,6 +26,7 @@ JENKINS_URL = os.environ.get('JENKINS_URL', 'unknown')
 JENKINS_USERNAME = os.environ.get('JENKINS_USERNAME', 'unknown')
 JENKINS_PASSWORD = os.environ.get('JENKINS_PASSWORD', 'unknown')
 JENKINS_GITLAB_CREDS_ID = os.environ.get('JENKINS_GITLAB_CREDS_ID', 'unknown')
+GITLAB_JENKINS_TRIGGER_SSL = os.environ.get('GITLAB_JENKINS_TRIGGER_SSL', "TRUE") == "TRUE"
 
 PROJECT_TYPES = os.environ.get('PROJECT_TYPES', 'mulePipeline').split(',')
 
