@@ -44,7 +44,7 @@ def is_webhook_installed(project, jenkins_url=settings.JENKINS_URL):
     logger.info("hook not already installed")
     return False
 
-def install_webhook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=settings.JENKINS_URL, jenkins_gitlab_trigger_secret=settings.JENKINS_GITLAB_TRIGGER_SECRET):
+def install_webhook(project, token=settings.GITLAB_PRIVATE_TOKEN, jenkins_url=settings.JENKINS_URL, jenkins_gitlab_trigger_secret=settings.GITLAB_JENKINS_TRIGGER_SECRET):
     if is_webhook_installed(project):
         return f'GitLab webhook already installed for {project.full_name}' 
 
