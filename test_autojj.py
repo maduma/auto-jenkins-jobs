@@ -9,7 +9,7 @@ import gitlab_client
 
 ALL_GOOD_STATE = PipelineState()
 
-def test_parse_event(monkeypatch):
+def test_parse_event_1(monkeypatch):
     monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: 'mulePipeline()')
     with open('test_repository_update_event.json', 'r') as f:
         post_data = json.load(f)
@@ -23,7 +23,7 @@ def test_parse_event(monkeypatch):
             pipeline = 'mulePipeline',
         )
 
-def test_parse_event(monkeypatch):
+def test_parse_event_2(monkeypatch):
     monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: 'mulePipeline()')
     with open('test_repository_update_event_subgroup.json', 'r') as f:
         post_data = json.load(f)
