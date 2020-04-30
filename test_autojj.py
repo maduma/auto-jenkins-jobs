@@ -23,6 +23,12 @@ def test_parse_event(monkeypatch):
             pipeline = 'mulePipeline',
         )
 
+def test_parse_event(monkeypatch):
+    monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: 'mulePipeline()')
+    with open('test_repository_update_event_subgroup.json', 'r') as f:
+        post_data = json.load(f)
+        job = parse_event(post_data)
+        assert job == None
 
 def test_isAutoJJProject_mule_project1():
     jenkinsfile="""
@@ -90,7 +96,7 @@ def test_is_repository_update_event():
 
 def test_process_event_not_repo_update():
     event = {'event_name': 'test_event'}
-    assert process_event(event) == ("Can only handle GitLab 'repository_update' event", 400)
+    assert process_event(event) == ("Can only handle GitLab 'repository_update' event", 200)
 
 def test_process_event_no_pipeline(monkeypatch):
     project = Project()

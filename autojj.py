@@ -7,7 +7,10 @@ import gitlab_client
 logger = settings.get_logger(__name__)
 
 # folder is jenkins folder and full_name is jenkins job full path 
-Project = collections.namedtuple('Project', 'id full_name folder short_name git_http_url pipeline', defaults=[0] + [''] * 4 + [False])
+Project = collections.namedtuple(
+    'Project', 'id full_name folder short_name git_http_url pipeline',
+    defaults=[0] + [''] * 4 + [False],
+    )
 # maximum jenkins operations (create and update)
 MAX_JENKINS_OPS = 2
 
@@ -15,7 +18,7 @@ def process_event(event):
     if not is_repository_update(event):
         msg =  "Can only handle GitLab 'repository_update' event"
         logger.info(msg)
-        return msg, 400
+        return msg, 200
 
     project = parse_event(event)
     if project:
@@ -28,7 +31,7 @@ def process_event(event):
             return msg, 200
     msg = "Cannot parse project in the GitLab event"
     logger.info(msg)
-    return msg, 500
+    return msg, 200
 
 def is_repository_update(event):
     try: 
@@ -42,6 +45,10 @@ def is_repository_update(event):
 
 def parse_event(event):
     full_name = event['project']['path_with_namespace']
+    fields = full_name.split('/')
+    if not len(fields) == 2:
+        logger.info('Cannot handle GitLab subgroup')
+        return None
     folder, short_name = full_name.split('/')
     project_id = event['project_id']
     git_http_url = event['project']['git_http_url']
