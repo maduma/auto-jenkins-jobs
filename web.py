@@ -4,20 +4,26 @@ import gitlab_client
 import jenkins_client
 import settings
 
+logger = settings.get_logger(__name__)
+
 app = Flask(__name__)
 
 # to test
 @app.route('/event', methods=['POST'])
 def event():
     if not jenkins_client.is_jenkins_online():
-        return {'description': 'Jenkins not online'}, 503
+        msg = 'Jenkins is offline'
+        logger.error(msg)
+        return msg, 503
 
     is_gitlab_system_event = request.headers.get('X-Gitlab-Event') == 'System Hook'
     if is_gitlab_system_event and request.is_json:
         event = request.get_json()
         return autojj.process_event(event)
     else:
-        return {'description': "Can only process valid Gitlab System Hook"}, 400
+        msg = "Can only process valid Gitlab System Hook"
+        logger.info(msg)
+        return msg, 200
 
 # to test
 @app.route('/health', methods=['GET'])
