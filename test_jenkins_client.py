@@ -68,10 +68,10 @@ def test_create_pipeline_xml():
         git_http_url = 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git',
     )
     xml = create_pipeline_xml(project, template='test_pipeline_short.tmpl.xml')
-    assert xml == """<gitLabConnection></gitLabConnection>
-<name>dentiste</name>
+    assert xml == """<name>dentiste</name>
 <url>https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git</url>
 <credentialsId>unknown</credentialsId>
+<secretToken>unknown</secretToken>
 """
 
 def test_create_pipeline_xml_default_template():

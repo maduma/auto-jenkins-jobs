@@ -103,6 +103,7 @@ def create_pipeline_xml(
     project,
     template='templates/pipeline.tmpl.xml',
     gitlab_creds_id=settings.JENKINS_GITLAB_CREDS_ID,
+    encrypted_secret_token=settings.JENKINS_ENCRYPTED_SECRET_TOKEN,
     ):
     with open(template) as f:
         xml = f.read()
@@ -110,7 +111,7 @@ def create_pipeline_xml(
         job_name=project.short_name,
         git_http_url=project.git_http_url,
         git_creds_id=gitlab_creds_id,
-        gitlab_connection='',
+        encrypted_secret_token=encrypted_secret_token,
     )
     return xml
 

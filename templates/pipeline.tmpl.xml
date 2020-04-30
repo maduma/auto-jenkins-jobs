@@ -4,7 +4,7 @@
   <keepDependencies>false</keepDependencies>
   <properties>
     <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.13">
-      <gitLabConnection>maduma</gitLabConnection>
+      <gitLabConnection></gitLabConnection>
     </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
@@ -27,7 +27,7 @@
           <excludeBranchesSpec></excludeBranchesSpec>
           <sourceBranchRegex></sourceBranchRegex>
           <targetBranchRegex></targetBranchRegex>
-          <secretToken>{{AQAAABAAAAAwFRHMno4ZTj2SlvscbfWH9g/gyNggjtD/WMqsAVk+mUOUNb87kDrqpkP5sLVr/glHLWxnuW6ltdk852pfz7La7Q==}}</secretToken>
+          <secretToken>{encrypted_secret_token}</secretToken>
           <pendingBuildName></pendingBuildName>
           <cancelPendingBuildsOnUpdate>false</cancelPendingBuildsOnUpdate>
         </com.dabsquared.gitlabjenkins.GitLabPushTrigger>
