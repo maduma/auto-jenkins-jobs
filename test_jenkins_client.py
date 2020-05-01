@@ -63,22 +63,22 @@ def test_parse_description_version_2():
 def test_parse_description_version_empty():
     assert parse_description(None) == None
 
-def test_create_pipeline_xml():
+def test_create_pipeline_xml(monkeypatch):
+    monkeypatch.setattr(jenkins_client, "encrypt", lambda secret: f'##{secret}##')
     project =  Project(id=0, full_name='maduma/dentiste', folder='maduma', short_name='dentiste', pipeline='phpPipeline',
         git_http_url = 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git',
-        encrypted_trigger_token='TOKEN',
+        trigger_token='TOKEN',
     )
     xml = create_pipeline_xml(project, template='test_pipeline_short.tmpl.xml')
     assert xml == """<name>dentiste</name>
 <url>https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git</url>
 <credentialsId>unknown</credentialsId>
-<secretToken>TOKEN</secretToken>
+<secretToken>##TOKEN##</secretToken>
 """
 
-def test_create_pipeline_xml_default_template():
-    project =  Project(id=0, full_name='maduma/dentiste', folder='maduma', short_name='dentiste', pipeline='phpPipeline',
-        git_http_url = 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git',
-    )
+def test_create_pipeline_xml_default_template(monkeypatch):
+    monkeypatch.setattr(jenkins_client, "encrypt", lambda secret: 'secret')
+    project =  Project()
     xml = create_pipeline_xml(project)
     assert xml.startswith('<')
 

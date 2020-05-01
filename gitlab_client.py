@@ -4,8 +4,10 @@ import settings
 
 logger = settings.get_logger(__name__)
 
+
 def is_gitlab_online(gitlab_url=settings.GITLAB_URL, token=settings.GITLAB_PRIVATE_TOKEN):
     url = f'{gitlab_url}/api/v4/user'
+
     try:
         resp = requests.get(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
         if resp.status_code == 200:
@@ -23,10 +25,13 @@ def get_webhooks(project, token=settings.GITLAB_PRIVATE_TOKEN):
     gitlab_url = '/'.join(project.git_http_url.split('/')[:3])
     url = f'{gitlab_url}/api/v4/projects/{project.id}/hooks'
     resp = requests.get(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
+
     if resp.status_code == 200:
         return resp.json() # always return an iterable
+
     logger.error("Cannot get hooks: " + resp.reason)
     return []
+
 
 def is_webhook_installed(project, jenkins_url=settings.JENKINS_URL):
     hooks = get_webhooks(project)
@@ -43,6 +48,7 @@ def is_webhook_installed(project, jenkins_url=settings.JENKINS_URL):
 
     logger.info("hook not already installed")
     return False
+
 
 def install_webhook(
     project,
@@ -61,23 +67,29 @@ def install_webhook(
         "token": project.trigger_token,
         "enable_ssl_verification": ssl,
     }
+
     gitlab_url = '/'.join(project.git_http_url.split('/')[:3])
     url = f'{gitlab_url}/api/v4/projects/{project.id}/hooks'
 
     resp = requests.post(url, headers={'PRIVATE-TOKEN': token}, json=data)
+
     if resp.status_code == 201:
         logger.info(f"new hook installed for {project.full_name}")
         return f'Install GitLab webhook for {project.full_name}' 
+
     logger.error("Cannot install hook: " + resp.reason)
     return f'Cannot install GitLab webhook for {project.full_name}'
+
 
 def get_raw_gitlab_jenkinsfile_url(project):
     gitlab_url = ('/').join(project.git_http_url.split('/')[:3])
     return f'{gitlab_url}/api/v4/projects/{project.id}/repository/files/Jenkinsfile/raw?ref=master'
 
+
 def get_jenkinsfile(project, token=settings.GITLAB_PRIVATE_TOKEN):
     api_url = get_raw_gitlab_jenkinsfile_url(project)
     resp = requests.get(api_url, headers={'PRIVATE-TOKEN': token}, timeout=2)
+
     if resp.status_code == 200:
         return resp.text
     else:

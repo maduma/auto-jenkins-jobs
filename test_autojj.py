@@ -12,7 +12,6 @@ ALL_GOOD_STATE = PipelineState()
 def test_parse_event_1(monkeypatch):
     monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: 'mulePipeline()')
     monkeypatch.setattr(autojj, 'random_string', lambda: 'secret')
-    monkeypatch.setattr(jenkins_client, 'encrypt', lambda secret: 'terces')
     with open('test_repository_update_event.json', 'r') as f:
         post_data = json.load(f)
         job = parse_event(post_data)
@@ -24,7 +23,6 @@ def test_parse_event_1(monkeypatch):
             git_http_url = "https://gitlab.maduma.org/maduma/toto.git",
             pipeline = 'mulePipeline',
             trigger_token = 'secret',
-            encrypted_trigger_token = 'terces',
         )
 
 def test_parse_event_2(monkeypatch):

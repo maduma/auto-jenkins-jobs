@@ -8,6 +8,7 @@ logger = settings.get_logger(__name__)
 
 app = Flask(__name__)
 
+
 # to test
 @app.route('/event', methods=['POST'])
 def event():
@@ -16,8 +17,7 @@ def event():
         logger.error(msg)
         return msg, 503
 
-    is_gitlab_system_event = request.headers.get('X-Gitlab-Event') == 'System Hook'
-    if is_gitlab_system_event and request.is_json:
+    if request.is_json and request.headers.get('X-Gitlab-Event') == 'System Hook':
         event = request.get_json()
         return autojj.process_event(event)
     else:
@@ -25,12 +25,24 @@ def event():
         logger.info(msg)
         return msg, 200
 
+
 # to test
 @app.route('/health', methods=['GET'])
 def health():
     jenkins_status = jenkins_client.is_jenkins_online()
     gitlab_status = gitlab_client.is_gitlab_online()
+
     if jenkins_status['status'] == 'online' and gitlab_status['status'] == 'online':
-        return {'status': 'online', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status, 'gitlab': gitlab_status}
+        return {
+            'status': 'online',
+            'version': settings.AUTOJJ_VERSION,
+            'jenkins': jenkins_status,
+            'gitlab': gitlab_status,
+            }
     else:
-        return {'status': 'degraded', 'version': settings.AUTOJJ_VERSION, 'jenkins': jenkins_status, 'gitlab': gitlab_status}
+        return {
+            'status': 'degraded',
+            'version': settings.AUTOJJ_VERSION,
+            'jenkins': jenkins_status,
+            'gitlab': gitlab_status
+            }

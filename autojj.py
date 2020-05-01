@@ -8,13 +8,16 @@ import string
 
 logger = settings.get_logger(__name__)
 
-# folder is jenkins folder and full_name is jenkins job full path 
-Project = collections.namedtuple(
-    'Project', 'pipeline id full_name folder short_name git_http_url trigger_token, encrypted_trigger_token',
-    defaults=[False, 0] + [''] * 6,
-    )
 # maximum jenkins operations (create and update)
 MAX_JENKINS_OPS = 2
+
+# folder is jenkins folder and full_name is jenkins job full path 
+Project = collections.namedtuple(
+    'Project',
+    'pipeline id full_name folder short_name git_http_url trigger_token',
+    defaults=[False, 0] + [''] * 5,
+    )
+
 
 def process_event(event):
     if not is_repository_update(event):
@@ -35,6 +38,7 @@ def process_event(event):
     logger.info(msg)
     return msg, 200
 
+
 def is_repository_update(event):
     try: 
         if not event.get('event_name') == "repository_update":
@@ -45,15 +49,19 @@ def is_repository_update(event):
         return False
     return True
 
+
 def random_string():
     return ''.join(random.choice(string.ascii_letters) for i in range(24)) 
+
 
 def parse_event(event):
     full_name = event['project']['path_with_namespace']
     fields = full_name.split('/')
+
     if not len(fields) == 2:
         logger.info('Cannot handle GitLab subgroup')
         return None
+
     folder, short_name = full_name.split('/')
     project_id = event['project_id']
     git_http_url = event['project']['git_http_url']
@@ -62,25 +70,22 @@ def parse_event(event):
     jenkinsfile = gitlab_client.get_jenkinsfile(project)
     pipeline = is_autojj_project(jenkinsfile)
     
-    trigger_token = random_string()
-    encrypted_trigger_token = jenkins_client.encrypt(trigger_token)
-
-    project = Project(
-      id = project_id,
-      full_name = full_name,
-      folder = folder,
-      short_name = short_name,
-      git_http_url = git_http_url,
-      pipeline = pipeline,
-      trigger_token = trigger_token,
-      encrypted_trigger_token = encrypted_trigger_token,
+    return Project(
+      id=project_id,
+      full_name=full_name,
+      folder=folder,
+      short_name=short_name,
+      git_http_url=git_http_url,
+      pipeline=pipeline,
+      trigger_token=random_string(),
     )
-    return project
+
 
 def is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES):
     if not jenkinsfile:
         return False
-    # look for groovy method
+
+    # try to find 'known' groovy function call
     for type in types:
         if not re.match(r'\w+', type):
             logger.error(f'Project type: {type} is not a word')
@@ -90,7 +95,9 @@ def is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES):
         found = pattern.search(jenkinsfile)
         if found:
             return found[2]
+
     return False
+
 
 def install_pipeline(project, ops_log=None, ops=0):
     if ops > MAX_JENKINS_OPS:
@@ -119,5 +126,3 @@ def install_pipeline(project, ops_log=None, ops=0):
         return ops_log
 
     return install_pipeline(project, ops_log=ops_log, ops=ops + 1)
-
-
