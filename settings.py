@@ -18,16 +18,16 @@ def obfuscate(secret):
 
 logger = get_logger(__name__)
 
-AUTOJJ_VERSION = os.environ.get('AUTOJJ_VERSION','unknown')
 GITLAB_URL = os.environ.get('GITLAB_URL','unknown')
 GITLAB_PRIVATE_TOKEN = os.environ.get('GITLAB_PRIVATE_TOKEN','unknown')
-GITLAB_JENKINS_TRIGGER_SSL = os.environ.get('GITLAB_JENKINS_TRIGGER_SSL', "TRUE") == "TRUE"
 JENKINS_URL = os.environ.get('JENKINS_URL', 'unknown')
 JENKINS_USERNAME = os.environ.get('JENKINS_USERNAME', 'unknown')
 JENKINS_PASSWORD = os.environ.get('JENKINS_PASSWORD', 'unknown')
 JENKINS_GITLAB_CREDS_ID = os.environ.get('JENKINS_GITLAB_CREDS_ID', 'unknown')
 
+AUTOJJ_VERSION = os.environ.get('AUTOJJ_VERSION','__VERSION__')
 PROJECT_TYPES = os.environ.get('PROJECT_TYPES', 'mulePipeline').split(',')
+GITLAB_JENKINS_TRIGGER_SSL = os.environ.get('GITLAB_JENKINS_TRIGGER_SSL', "TRUE") == "TRUE"
 
 logger.debug(AUTOJJ_VERSION)
 logger.debug(GITLAB_URL)
