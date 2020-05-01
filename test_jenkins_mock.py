@@ -7,6 +7,9 @@ class Job_reconfigured_exception(Exception):
 class Job_build_exception(Exception):
     pass
 
+class Run_script_exception(Exception):
+    pass
+
 class MockResponse:
 
     server_created = False
@@ -41,6 +44,9 @@ class MockResponse:
 
     def build_job(self, name, parameters=None):
         raise Job_build_exception(name)
+
+    def run_script(self, script):
+        raise Run_script_exception()
 
     def get_job_name(self, name):
         if name != 'NO_JOB':

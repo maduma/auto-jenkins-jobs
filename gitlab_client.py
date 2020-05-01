@@ -48,7 +48,6 @@ def install_webhook(
     project,
     token=settings.GITLAB_PRIVATE_TOKEN,
     jenkins_url=settings.JENKINS_URL,
-    trigger_secret=settings.GITLAB_JENKINS_TRIGGER_SECRET,
     ssl=settings.GITLAB_JENKINS_TRIGGER_SSL,
     ):
     if is_webhook_installed(project):
@@ -59,7 +58,7 @@ def install_webhook(
         "url": jenkins_url + '/project/' + project.full_name,
         "push_events": False,
         "tag_push_events": True,
-        "token": trigger_secret,
+        "token": project.trigger_token,
         "enable_ssl_verification": ssl,
     }
     gitlab_url = '/'.join(project.git_http_url.split('/')[:3])

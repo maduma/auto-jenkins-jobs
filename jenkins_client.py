@@ -4,6 +4,8 @@ import xml.etree.ElementTree as ET
 import re
 import settings
 import collections
+import random
+import string
 
 logger = settings.get_logger(__name__)
 
@@ -101,19 +103,31 @@ def get_pipeline_state(project):
     logger.debug(state)
     return state
 
+def random_string():
+    return ''.join(random.choice(string.ascii_letters) for i in range(24)) 
+
+def encrypt(secret):
+    server = jenkins_connect()
+    groovy_script = f"""
+    secret = hudson.util.Secret.fromString('{secret}')
+    println secret.getEncryptedValue()
+    """
+    return server.run_script(groovy_script).strip()
+
 def create_pipeline_xml(
     project,
     template='templates/pipeline.tmpl.xml',
     gitlab_creds_id=settings.JENKINS_GITLAB_CREDS_ID,
-    encrypted_secret_token=settings.JENKINS_ENCRYPTED_SECRET_TOKEN,
     ):
+
     with open(template) as f:
         xml = f.read()
+
     xml = xml.format(
         job_name=project.short_name,
         git_http_url=project.git_http_url,
         git_creds_id=gitlab_creds_id,
-        encrypted_secret_token=encrypted_secret_token,
+        encrypted_trigger_token=project.encrypted_trigger_token,
     )
     return xml
 

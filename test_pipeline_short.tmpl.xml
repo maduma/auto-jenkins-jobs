@@ -1,4 +1,4 @@
 <name>{job_name}</name>
 <url>{git_http_url}</url>
 <credentialsId>{git_creds_id}</credentialsId>
-<secretToken>{encrypted_secret_token}</secretToken>
+<secretToken>{encrypted_trigger_token}</secretToken>

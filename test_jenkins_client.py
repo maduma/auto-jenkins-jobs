@@ -1,6 +1,6 @@
 from jenkins_client import parse_description, get_description
 from jenkins_client import create_pipeline_xml, get_pipeline_state, PipelineState, is_job_exists
-from jenkins_client import jenkins_connect, create_folder
+from jenkins_client import jenkins_connect, create_folder, encrypt
 from jenkins_client import is_folder_exists, is_pipeline_exists, is_jenkins_online, is_job_xml_updated, get_version
 from autojj import Project
 import jenkins
@@ -66,12 +66,13 @@ def test_parse_description_version_empty():
 def test_create_pipeline_xml():
     project =  Project(id=0, full_name='maduma/dentiste', folder='maduma', short_name='dentiste', pipeline='phpPipeline',
         git_http_url = 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git',
+        encrypted_trigger_token='TOKEN',
     )
     xml = create_pipeline_xml(project, template='test_pipeline_short.tmpl.xml')
     assert xml == """<name>dentiste</name>
 <url>https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git</url>
 <credentialsId>unknown</credentialsId>
-<secretToken>unknown</secretToken>
+<secretToken>TOKEN</secretToken>
 """
 
 def test_create_pipeline_xml_default_template():
@@ -155,3 +156,9 @@ def test_pipeline_state_6(monkeypatch):
     monkeypatch.setattr(jenkins_client, 'is_pipeline_updated', lambda folder: True)
     state = PipelineState(is_folder_exists=True, is_folder_updated=False, is_pipeline_exists=True, is_pipeline_updated=True)
     assert get_pipeline_state(Project()) == state
+
+# test that we call jenkins.run_script
+def test_encrypt(monkeypatch):
+    monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
+    with pytest.raises(test_jenkins_mock.Run_script_exception) as ex:
+        encrypt('secret')

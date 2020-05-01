@@ -3,13 +3,15 @@ import collections
 import settings
 import jenkins_client
 import gitlab_client
+import random
+import string
 
 logger = settings.get_logger(__name__)
 
 # folder is jenkins folder and full_name is jenkins job full path 
 Project = collections.namedtuple(
-    'Project', 'id full_name folder short_name git_http_url pipeline',
-    defaults=[0] + [''] * 4 + [False],
+    'Project', 'pipeline id full_name folder short_name git_http_url trigger_token, encrypted_trigger_token',
+    defaults=[False, 0] + [''] * 6,
     )
 # maximum jenkins operations (create and update)
 MAX_JENKINS_OPS = 2
@@ -43,6 +45,9 @@ def is_repository_update(event):
         return False
     return True
 
+def random_string():
+    return ''.join(random.choice(string.ascii_letters) for i in range(24)) 
+
 def parse_event(event):
     full_name = event['project']['path_with_namespace']
     fields = full_name.split('/')
@@ -57,6 +62,9 @@ def parse_event(event):
     jenkinsfile = gitlab_client.get_jenkinsfile(project)
     pipeline = is_autojj_project(jenkinsfile)
     
+    trigger_token = random_string()
+    encrypted_trigger_token = jenkins_client.encrypt(trigger_token)
+
     project = Project(
       id = project_id,
       full_name = full_name,
@@ -64,6 +72,8 @@ def parse_event(event):
       short_name = short_name,
       git_http_url = git_http_url,
       pipeline = pipeline,
+      trigger_token = trigger_token,
+      encrypted_trigger_token = encrypted_trigger_token,
     )
     return project
 
