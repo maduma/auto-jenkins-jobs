@@ -98,12 +98,12 @@ def test_is_repository_update_event():
 
 def test_process_event_not_repo_update():
     event = {'event_name': 'test_event'}
-    assert process_event(event) == ("Can only handle GitLab 'repository_update' event", 200)
+    assert process_event(event) == (f"Can only handle GitLab 'repository_update' event: {str(event)}", 200)
 
 def test_process_event_no_pipeline(monkeypatch):
-    project = Project()
+    project = Project(full_name='full')
     monkeypatch.setattr(autojj, "parse_event", lambda x: project)
-    assert process_event({'event_name': 'repository_update'}) == ("Unknown Jenkins Pipeline", 200)
+    assert process_event({'event_name': 'repository_update'}) == ("Unknown Jenkins Pipeline for full", 200)
 
 def test_process_event(monkeypatch):
     project = Project(pipeline = 'phpPipeline')

@@ -21,8 +21,8 @@ Project = collections.namedtuple(
 
 def process_event(event):
     if not is_repository_update(event):
-        msg =  "Can only handle GitLab 'repository_update' event"
-        logger.info(msg)
+        msg =  f"Can only handle GitLab 'repository_update' event: {str(event)}"
+        logger.error(msg)
         return msg, 200
 
     project = parse_event(event)
@@ -31,11 +31,12 @@ def process_event(event):
             logs = install_pipeline(project)
             return '\n'.join(logs), 200
         else:
-            msg = "Unknown Jenkins Pipeline"
+            msg = f"Unknown Jenkins Pipeline for {project.full_name}"
             logger.info(msg)
             return msg, 200
-    msg = "Cannot parse project in the GitLab event"
-    logger.info(msg)
+
+    msg = f"Cannot parse project in the GitLab event: {str(event)}"
+    logger.error(msg)
     return msg, 200
 
 
@@ -47,6 +48,7 @@ def is_repository_update(event):
         # handle the case when event is not a dictionary
         logger.error(f'GitLab event is not an json object: {str(event)}')
         return False
+
     return True
 
 
@@ -59,7 +61,7 @@ def parse_event(event):
     fields = full_name.split('/')
 
     if not len(fields) == 2:
-        logger.info('Cannot handle GitLab subgroup')
+        logger.info(f'Cannot handle GitLab subgroup for {full_name}')
         return None
 
     folder, short_name = full_name.split('/')
