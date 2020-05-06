@@ -68,19 +68,19 @@ def parse_event(event):
     project_id = event['project_id']
     git_http_url = event['project']['git_http_url']
 
-    project = Project(id=project_id, git_http_url=git_http_url)
-    jenkinsfile = gitlab_client.get_jenkinsfile(project)
-    pipeline = is_autojj_project(jenkinsfile)
-    
-    return Project(
+    project =  Project(
       id=project_id,
       full_name=full_name,
       folder=folder,
       short_name=short_name,
       git_http_url=git_http_url,
-      pipeline=pipeline,
       trigger_token=random_string(),
     )
+
+    jenkinsfile = gitlab_client.get_jenkinsfile(project)
+    pipeline = is_autojj_project(jenkinsfile)
+    
+    return project._replace(pipeline=pipeline)
 
 
 def is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES):

@@ -41,5 +41,5 @@ def health():
         'status': status,
         'version': settings.AUTOJJ_VERSION,
         'jenkins': jenkins_status,
-        'gitlab': gitlab_status
+        'gitlab': gitlab_status,
         }
