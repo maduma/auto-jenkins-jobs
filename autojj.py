@@ -35,9 +35,7 @@ def process_event(event):
             logger.info(msg)
             return msg, 200
 
-    msg = f"Cannot parse project in the GitLab event: {str(event)}"
-    logger.error(msg)
-    return msg, 200
+    return "Cannot parse event", 200
 
 
 def is_repository_update(event):
@@ -79,7 +77,6 @@ def parse_event(event):
 
     jenkinsfile = gitlab_client.get_jenkinsfile(project)
     pipeline = is_autojj_project(jenkinsfile)
-    
     return project._replace(pipeline=pipeline)
 
 

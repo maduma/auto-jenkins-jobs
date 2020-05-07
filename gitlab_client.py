@@ -93,5 +93,5 @@ def get_jenkinsfile(project, token=settings.GITLAB_PRIVATE_TOKEN):
     if resp.status_code == 200:
         return resp.text
     else:
-        logger.info(f'Cannot get Jenkins file for {project.full_name}:' + str(resp.reason))
+        logger.info(f'Cannot read Jenkinsfile for {project.full_name}: ' + str(resp.reason))
         return None

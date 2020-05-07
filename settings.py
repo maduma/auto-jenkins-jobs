@@ -39,7 +39,8 @@ PROJECT_TYPES = os.environ.get('PROJECT_TYPES', 'mulePipeline').split(',')
 GITLAB_JENKINS_TRIGGER_SSL = os.environ.get('GITLAB_JENKINS_TRIGGER_SSL', "TRUE") == "TRUE"
 
 
-logger.debug(AUTOJJ_VERSION)
+logger.info(f'Version: {AUTOJJ_VERSION}')
+
 logger.debug(GITLAB_URL)
 logger.debug(obfuscate(GITLAB_PRIVATE_TOKEN))
 logger.debug(GITLAB_JENKINS_TRIGGER_SSL)
