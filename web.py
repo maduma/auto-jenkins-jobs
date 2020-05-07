@@ -21,7 +21,7 @@ def event():
         event = request.get_json()
         return autojj.process_event(event)
     else:
-        msg = "Can only process valid Gitlab System Hook"
+        msg = 'Can only process valid Gitlab System Hook'
         logger.info(msg)
         return msg, 200
 

@@ -78,10 +78,6 @@ def test_isAutoJJProject_mule_project_bad2():
     assert not is_autojj_project(jenkinsfile, types=['pipeline-2'])
 
 def test_isAutoJJProject_bad3():
-    jenkinsfile=None
-    assert not is_autojj_project(jenkinsfile, types=['otherPipeline'])
-
-def test_isAutoJJProject_bad4():
     jenkinsfile=''
     assert not is_autojj_project(jenkinsfile, types=['otherPipeline'])
 
@@ -103,7 +99,7 @@ def test_process_event_not_repo_update():
 def test_process_event_no_pipeline(monkeypatch):
     project = Project(full_name='full')
     monkeypatch.setattr(autojj, "parse_event", lambda x: project)
-    assert process_event({'event_name': 'repository_update'}) == ("Unknown Jenkins Pipeline for full", 200)
+    assert process_event({'event_name': 'repository_update'}) == ("No known Jenkins Pipeline found for full", 200)
 
 def test_process_event(monkeypatch):
     project = Project(pipeline = 'phpPipeline')

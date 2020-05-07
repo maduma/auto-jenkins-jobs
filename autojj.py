@@ -31,8 +31,7 @@ def process_event(event):
             logs = install_pipeline(project)
             return '\n'.join(logs), 200
         else:
-            msg = f"Unknown Jenkins Pipeline for {project.full_name}"
-            logger.info(msg)
+            msg = f"No known Jenkins Pipeline found for {project.full_name}"
             return msg, 200
 
     return "Cannot parse event", 200
@@ -76,14 +75,14 @@ def parse_event(event):
     )
 
     jenkinsfile = gitlab_client.get_jenkinsfile(project)
-    pipeline = is_autojj_project(jenkinsfile)
-    return project._replace(pipeline=pipeline)
+    if jenkinsfile:
+        pipeline = is_autojj_project(jenkinsfile)
+        project = project._replace(pipeline=pipeline)
+
+    return project
 
 
 def is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES):
-    if not jenkinsfile:
-        return False
-
     # try to find 'known' groovy function call
     for type in types:
         if not re.match(r'\w+', type):
@@ -95,6 +94,7 @@ def is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES):
         if found:
             return found[2]
 
+    logger.info('No known groovy call found in Jenkinsfile')
     return False
 
 
