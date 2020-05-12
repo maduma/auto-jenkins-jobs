@@ -12,7 +12,7 @@ ALL_GOOD_STATE = PipelineState()
 def test_parse_event_1(monkeypatch):
     monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: 'mulePipeline()')
     monkeypatch.setattr(autojj, 'random_string', lambda: 'secret')
-    with open('test_repository_update_event.json', 'r') as f:
+    with open('test/test_repository_update_event.json', 'r') as f:
         post_data = json.load(f)
         job = parse_event(post_data)
         assert job == Project(
@@ -27,7 +27,7 @@ def test_parse_event_1(monkeypatch):
 
 def test_parse_event_2(monkeypatch):
     monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: 'mulePipeline()')
-    with open('test_repository_update_event_subgroup.json', 'r') as f:
+    with open('test/test_repository_update_event_subgroup.json', 'r') as f:
         post_data = json.load(f)
         job = parse_event(post_data)
         assert job == None
