@@ -2,7 +2,13 @@ def call(Map config = [:]) {
 
     // default parameters
     def default_deploy_config = [
-        prd: [
+        tst: [
+                [
+                    server: 'cicd.in.luxair.lu',
+                    service: 'cicd.in.luxair.lu',
+                ],
+        ],
+        acc: [
                 [
                     server: 'cicd.in.luxair.lu',
                     service: 'cicd.in.luxair.lu',
@@ -20,7 +26,7 @@ def call(Map config = [:]) {
     def deploy_creds_id = config.get('deploy_creds_id', 'jenkins_ssh')
 
     // In Groovy, maps created with the literal notation are ordered
-    // We can expect the default environment will be the first in the keys
+    // We can expect environments will be in the same order as defined in deploy_config map
     def environments = deploy_config.keySet() as ArrayList
     def deploy_env = env.DEPLOY_ENV && deploy_config.containsKey(env.DEPLOY_ENV) ? env.DEPLOY_ENV : environments[0]
     def deploy_host0 = deploy_config[deploy_env][0]['server']
