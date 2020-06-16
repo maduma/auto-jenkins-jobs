@@ -33,7 +33,7 @@ def health():
     gitlab_status = gitlab_client.is_gitlab_online()
 
     if jenkins_status['status'] == 'online' and gitlab_status['status'] == 'online':
-        status = 'online'
+        status = 'pass'
     else:
         status = 'degraded'
 
