@@ -27,6 +27,7 @@ def call(Map config = [:]) {
     def graylog_servers = config.get('graylog_servers', graylog_default_servers)
 
     def deploy_env = env.DEPLOY_ENV ?: 'prd'
+    print deploy_env
     def deploy_host0 = deploy_config[deploy_env][0]['server']
     def service_host0 = deploy_config[deploy_env][0]['service']
     def deploy_host1 = deploy_config[deploy_env].size() == 2 ? "${deploy_config[deploy_env][1]['server']}" : ''
