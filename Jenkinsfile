@@ -4,8 +4,8 @@ def call(Map config = [:]) {
     def default_deploy_config = [
         tst: [
                 [
-                    server: 'dmulet.in.luxair.lu',
-                    service: 'dmulet.in.luxair.lu',
+                    server: 'cicd.in.luxair.lu',
+                    service: 'cicd.in.luxair.lu',
                 ],
         ],
         acc: [
