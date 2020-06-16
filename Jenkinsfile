@@ -1,8 +1,6 @@
 def call(Map config = [:]) {
 
     // default parameters
-    // In Groovy, maps created with the literal notation are ordered
-    // We can expect the default environment will be the first in the keys
     def default_deploy_config = [
         tst: [
                 [
@@ -33,16 +31,18 @@ def call(Map config = [:]) {
     def deploy_user = config.get('deploy_user', 'root')
     def deploy_creds_id = config.get('deploy_creds_id', 'jenkins_ssh')
 
+    // In Groovy, maps created with the literal notation are ordered
+    // We can expect the default environment will be the first in the keys
     def environments = deploy_config.keySet() as ArrayList
     def deploy_env = env.DEPLOY_ENV ?: environments[0]
     def deploy_host0 = deploy_config[deploy_env][0]['server']
     def service_host0 = deploy_config[deploy_env][0]['service']
-    def deploy_host1 = deploy_config[deploy_env].size() == 2 ? "${deploy_config[deploy_env][1]['server']}" : ''
-    def service_host1 = deploy_config[deploy_env].size() == 2 ? "${deploy_config[deploy_env][1]['service']}" : ''
+    def deploy_host1 = deploy_config[deploy_env].size() == 2 ? deploy_config[deploy_env][1]['server'] : ''
+    def service_host1 = deploy_config[deploy_env].size() == 2 ? deploy_config[deploy_env][1]['service'] : ''
 
     def registry_url = 'https://' + registry
     def git_tag = parseReleaseTag()
-    def app_name = "$JOB_BASE_NAME"
+    def app_name = env.JOB_BASE_NAME
     def app_version = git_tag == 'deploy-only' ? env.DOCKER_IMAGE.split(':').last() : "$git_tag-b$BUILD_ID"
     def docker_image = "$registry/" + (env.DOCKER_IMAGE ?: "$registry_namespace/$app_name:$app_version")
     def timestamp = new Date().format("yyMMdd_HHmmss")
@@ -154,7 +154,6 @@ def call(Map config = [:]) {
                     DEPLOY_ENV = "$deploy_env"
                     DEPLOY_CREDS_ID = "$deploy_creds_id"
                     DEPLOY_USER = "$deploy_user"
-                    GRAYLOG_SERVER = "${graylog_servers[deploy_env]}"
                 }
                 stages {
 
