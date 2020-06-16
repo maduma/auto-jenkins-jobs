@@ -2,18 +2,6 @@ def call(Map config = [:]) {
 
     // default parameters
     def default_deploy_config = [
-        tst: [
-                [
-                    server: 'cicd.in.luxair.lu',
-                    service: 'cicd.in.luxair.lu',
-                ],
-        ],
-        acc: [
-                [
-                    server: 'cicd.in.luxair.lu',
-                    service: 'cicd.in.luxair.lu',
-                ],
-        ],
         prd: [
                 [
                     server: 'cicd.in.luxair.lu',
