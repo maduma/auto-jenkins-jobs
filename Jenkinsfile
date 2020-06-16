@@ -15,7 +15,10 @@ pipeline {
 
         stage('Unit test') {
             agent {
-                docker { image 'python:3.8' }
+                docker {
+                    image 'python:3.8'
+                    args '$HOME:/.pip-cache:/cache'
+                }
             }
             steps {
                 sh '''
