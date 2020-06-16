@@ -4,18 +4,24 @@ def call(Map config = [:]) {
     // In Groovy, maps created with the literal notation are ordered
     // We can expect the default environment will be the first in the keys
     def default_deploy_config = [
+        tst: [
+                [
+                    server: 'cicd.in.luxair.lu',
+                    service: 'cicd.in.luxair.lu',
+                ],
+        ],
+        acc: [
+                [
+                    server: 'cicd.in.luxair.lu',
+                    service: 'cicd.in.luxair.lu',
+                ],
+        ],
         prd: [
                 [
                     server: 'cicd.in.luxair.lu',
                     service: 'cicd.in.luxair.lu',
                 ],
         ],
-    ]
-
-    def graylog_default_servers = [
-        tst: 'grayloga',
-        acc: 'grayloga',
-        prd: 'graylogp',
     ]
 
     def registry = config.get('registry','registry.in.luxair.lu')
@@ -26,7 +32,6 @@ def call(Map config = [:]) {
     def deploy_config = config.get('deploy_config', default_deploy_config)
     def deploy_user = config.get('deploy_user', 'root')
     def deploy_creds_id = config.get('deploy_creds_id', 'jenkins_ssh')
-    def graylog_servers = config.get('graylog_servers', graylog_default_servers)
 
     def environments = deploy_config.keySet() as ArrayList
     def deploy_env = env.DEPLOY_ENV ?: environments[0]
