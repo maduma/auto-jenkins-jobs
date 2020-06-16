@@ -28,7 +28,7 @@ def call(Map config = [:]) {
     def deploy_creds_id = config.get('deploy_creds_id', 'jenkins_ssh')
     def graylog_servers = config.get('graylog_servers', graylog_default_servers)
 
-    def environments = deploy_config.keySet() as String[];
+    def environments = deploy_config.keySet() as ArrayList
     def deploy_env = env.DEPLOY_ENV ?: environments[0]
     def deploy_host0 = deploy_config[deploy_env][0]['server']
     def service_host0 = deploy_config[deploy_env][0]['service']
@@ -210,7 +210,7 @@ def call(Map config = [:]) {
                     stage('Test Application node 2') {
                         when {
                             beforeAgent true
-                            expression { deploy_host }
+                            expression { deploy_host1 }
                         }
                         steps {
                             heartbeatTest("https://$service_host1/$app_id/health")
