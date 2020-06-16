@@ -22,7 +22,7 @@ def call(Map config = [:]) {
     // In Groovy, maps created with the literal notation are ordered
     // We can expect the default environment will be the first in the keys
     def environments = deploy_config.keySet() as ArrayList
-    def deploy_env = env.DEPLOY_ENV ?: environments[0]
+    def deploy_env = env.DEPLOY_ENV && deploy_config.containsKey(env.DEPLOY_ENV) ? env.DEPLOY_ENV : environments[0]
     def deploy_host0 = deploy_config[deploy_env][0]['server']
     def service_host0 = deploy_config[deploy_env][0]['service']
     def deploy_host1 = deploy_config[deploy_env].size() == 2 ? deploy_config[deploy_env][1]['server'] : ''
