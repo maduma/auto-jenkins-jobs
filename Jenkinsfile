@@ -302,7 +302,7 @@ def deployementName(app_name, git_tag) {
 }
 
 def heartbeatTest(heartbeatUrl) {
-    sh "sleep 5"
+    sh "sleep 10"
     sh "curl -m 5 -s $heartbeatUrl | grep -B1 -A3 '\"pass\"' "
 }
 
