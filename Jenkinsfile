@@ -17,7 +17,7 @@ pipeline {
             agent {
                 docker {
                     image 'python:3.8'
-                    args '$HOME:/.pip-cache:/cache'
+                    args '-v $HOME/.pip-cache:/.cache'
                 }
             }
             steps {
