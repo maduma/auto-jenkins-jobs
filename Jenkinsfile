@@ -1,3 +1,8 @@
+
+def registry = 'registry.in.luxair.lu'
+def registry_creds_id = 'registry'
+
+def registry_url = 'https://' + registry
 def git_tag = parseReleaseTag()
 
 pipeline {
@@ -36,6 +41,19 @@ pipeline {
                 sh "docker build --build-arg AUTOJJ_VERSION=$git_tag -t registry.in.luxair.lu/infra/autojj:$git_tag ."
             }
         }
+
+        stage('Push Docker Image') {
+            when {
+                beforeAgent true
+                expression { env.gitlabBranch }
+            }
+            steps {
+                withDockerRegistry([credentialsId: registry_creds_id, url: registry_url]) {
+                    sh "docker push $docker_image"
+                }
+            }
+        }
+
     }
 }
 
