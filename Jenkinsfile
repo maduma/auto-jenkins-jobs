@@ -97,7 +97,7 @@ def call(Map config = [:]) {
                 }
                 agent {
                     docker {
-                        image docker_image
+                        image python_image
                         args '-v $HOME/.pip-cache:/.cache'
                     }
                 }
