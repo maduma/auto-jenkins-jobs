@@ -1,3 +1,5 @@
+def git_tag = parseReleaseTag()
+
 pipeline {
     agent {
         docker { image 'python:3.8' }
@@ -9,7 +11,7 @@ pipeline {
             steps {
                 sh 'git version'
                 sh 'env'
-                echo "${parseReleaseTag()}"
+                echo "$git_tag"
             }
         }
     }
