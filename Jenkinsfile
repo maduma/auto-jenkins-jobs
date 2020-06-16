@@ -9,7 +9,7 @@ def registry_url = 'https://' + registry
 def git_tag = parseReleaseTag()
 def app_name = "$JOB_BASE_NAME"
 def app_version = git_tag == 'deploy-only' ? env.DOCKER_IMAGE.split(':').last() : "$git_tag-b$BUILD_ID"
-def docker_image = "$registry/" + env.DOCKER_IMAGE ?: "$registry_namespace/$app_name:$app_version"
+def docker_image = "$registry/" + (env.DOCKER_IMAGE ?: "$registry_namespace/$app_name:$app_version")
 def timestamp = new Date().format("yyMMdd_HHmmss")
 def tarball = "$app_name-$app_version-$deploy_env-${timestamp}.tar"
 
