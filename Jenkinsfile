@@ -10,22 +10,14 @@ def call(Map config = [:]) {
         ],
         acc: [
                 [
-                    server: 'dmule1a.in.luxair.lu',
-                    service: 'dmule1a.in.luxair.lu',
-                ],
-                [
-                    server: 'dmule2a.in.luxair.lu',
-                    service: 'dmule2a.in.luxair.lu',
+                    server: 'cicd.in.luxair.lu',
+                    service: 'cicd.in.luxair.lu',
                 ],
         ],
         prd: [
                 [
-                    server: 'dmule1a.in.luxair.lu',
-                    service: 'dmule1a.in.luxair.lu',
-                ],
-                [
-                    server: 'dmule2a.in.luxair.lu',
-                    service: 'dmule2a.in.luxair.lu',
+                    server: 'cicd.in.luxair.lu',
+                    service: 'cicd.in.luxair.lu',
                 ],
         ],
     ]
@@ -67,7 +59,7 @@ def call(Map config = [:]) {
         agent any
         
         parameters {
-            choice(name: 'DEPLOY_ENV', choices: ['tst', 'acc', 'prd'], description: 'Environment where to deploy')
+            choice(name: 'DEPLOY_ENV', choices: ['tst'], description: 'Environment where to deploy')
             imageTag(name: 'DOCKER_IMAGE', image: "$registry_namespace/$app_name", registry: registry_url,
                 filter: '.*', description: 'Image version to deploy', credentialId: registry_creds_id)
         }

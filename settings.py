@@ -34,7 +34,7 @@ JENKINS_GITLAB_CREDS_ID = os.environ.get('JENKINS_GITLAB_CREDS_ID', 'unknown')
 # requirerd - end
 
 
-AUTOJJ_VERSION = os.environ.get('AUTOJJ_VERSION','__VERSION__')
+AUTOJJ_VERSION = os.environ.get('APP_VERSION','__VERSION__')
 PROJECT_TYPES = os.environ.get('PROJECT_TYPES', 'mulePipeline').split(',')
 GITLAB_JENKINS_TRIGGER_SSL = os.environ.get('GITLAB_JENKINS_TRIGGER_SSL', "TRUE") == "TRUE"
 
