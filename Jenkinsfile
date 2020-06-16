@@ -17,8 +17,12 @@ pipeline {
 
         stage('Unit test') {
             steps {
-                sh 'pip install -r requirements.txt'
-                sh 'pytest -v'
+                sh '''
+                    python -m venv .venv
+                    source .venv/bin/activate
+                    pip intall -r requirements.txt
+                    pytest -v
+                    '''
             }
         }
     }
