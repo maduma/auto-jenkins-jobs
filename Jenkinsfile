@@ -1,9 +1,7 @@
 def git_tag = parseReleaseTag()
 
 pipeline {
-    agent {
-        docker { image 'python:3.8' }
-    }
+    agent any
 
     stages {
 
@@ -16,6 +14,9 @@ pipeline {
         }
 
         stage('Unit test') {
+            agent {
+                docker { image 'python:3.8' }
+            }
             steps {
                 sh '''
                     python -m venv .venv
