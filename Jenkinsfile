@@ -24,6 +24,7 @@ pipeline {
                 sh 'git version'
                 sh 'env'
                 echo "$git_tag"
+                echo "$docker_image"
             }
         }
 
