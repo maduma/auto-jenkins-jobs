@@ -29,7 +29,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build --build-arg AUTOJJ_VERSION=$git_tag -t registry.in.luxair.lu/infra/autojj:$VERSION ."
+                sh "docker build --build-arg AUTOJJ_VERSION=$git_tag -t registry.in.luxair.lu/infra/autojj:$git_tag ."
             }
         }
     }
