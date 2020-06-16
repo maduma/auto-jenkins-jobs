@@ -14,6 +14,13 @@ pipeline {
                 echo "$git_tag"
             }
         }
+
+        stage('Unit test') {
+            steps {
+                sh 'pip install -r requirements.txt'
+                sh 'pytest -v'
+            }
+        }
     }
 }
 
