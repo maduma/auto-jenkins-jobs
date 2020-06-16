@@ -19,7 +19,7 @@ pipeline {
             steps {
                 sh '''
                     python -m venv .venv
-                    source .venv/bin/activate
+                    . .venv/bin/activate
                     pip intall -r requirements.txt
                     pytest -v
                     '''
