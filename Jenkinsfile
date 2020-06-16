@@ -4,6 +4,7 @@ def registry_creds_id = 'registry'
 def registry_namespace = 'infra'
 def python_image = 'python:3.8'
 
+def deploy_env = env.DEPLOY_ENV ?: 'tst'
 def registry_url = 'https://' + registry
 def git_tag = parseReleaseTag()
 def app_name = "$JOB_BASE_NAME"
