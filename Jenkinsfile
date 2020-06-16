@@ -1,6 +1,8 @@
 def call(Map config = [:]) {
 
     // default parameters
+    // In Groovy, maps created with the literal notation are ordered
+    // We can expect the default environment will be the first in the keys
     def default_deploy_config = [
         prd: [
                 [
@@ -26,7 +28,8 @@ def call(Map config = [:]) {
     def deploy_creds_id = config.get('deploy_creds_id', 'jenkins_ssh')
     def graylog_servers = config.get('graylog_servers', graylog_default_servers)
 
-    def deploy_env = env.DEPLOY_ENV ?: 'prd'
+    def environments = deploy_config.keySet() as String[];
+    def deploy_env = env.DEPLOY_ENV ?: environments[0]
     def deploy_host0 = deploy_config[deploy_env][0]['server']
     def service_host0 = deploy_config[deploy_env][0]['service']
     def deploy_host1 = deploy_config[deploy_env].size() == 2 ? "${deploy_config[deploy_env][1]['server']}" : ''
@@ -47,7 +50,7 @@ def call(Map config = [:]) {
         agent any
         
         parameters {
-            choice(name: 'DEPLOY_ENV', choices: ['prd'], description: 'Environment where to deploy')
+            choice(name: 'DEPLOY_ENV', choices: environments, description: 'Environment where to deploy')
             imageTag(name: 'DOCKER_IMAGE', image: "$registry_namespace/$app_name", registry: registry_url,
                 filter: '.*', description: 'Image version to deploy', credentialId: registry_creds_id)
         }
