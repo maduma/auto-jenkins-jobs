@@ -1,9 +1,17 @@
 
 def registry = 'registry.in.luxair.lu'
 def registry_creds_id = 'registry'
+def registry_namespace = 'infra'
+def python_image = 'python:3.8'
 
 def registry_url = 'https://' + registry
 def git_tag = parseReleaseTag()
+def app_name = "$JOB_BASE_NAME"
+def app_version = git_tag == 'deploy-only' ? env.DOCKER_IMAGE.split(':').last() : "$git_tag-b$BUILD_ID"
+def docker_image = "$registry/" + env.DOCKER_IMAGE ?: "$registry_namespace/$app_name:$app_version"
+def timestamp = new Date().format("yyMMdd_HHmmss")
+def tarball = "$app_name-$app_version-$deploy_env-${timestamp}.tar"
+
 
 pipeline {
     agent any
@@ -21,7 +29,7 @@ pipeline {
         stage('Unit test') {
             agent {
                 docker {
-                    image 'python:3.8'
+                    image python_image
                     args '-v $HOME/.pip-cache:/.cache'
                 }
             }
@@ -38,7 +46,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build --build-arg AUTOJJ_VERSION=$git_tag -t registry.in.luxair.lu/infra/autojj:$git_tag ."
+                sh "docker build --build-arg APP_VERSION=$app_version -t $docker_image ."
             }
         }
 

@@ -1,7 +1,7 @@
-from python:3.8.2-slim
+FROM python:3.8.2-slim
 
-ARG AUTOJJ_VERSION
-ENV AUTOJJ_VERSION ${AUTOJJ_VERSION}
+ARG APP_VERSION
+ENV APP_VERSION ${APP_VERSION}
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
