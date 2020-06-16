@@ -2,13 +2,7 @@ def call(Map config = [:]) {
 
     // default parameters
     def default_deploy_config = [
-        tst: [
-                [
-                    server: 'cicd.in.luxair.lu',
-                    service: 'cicd.in.luxair.lu',
-                ],
-        ],
-        acc: [
+        prd: [
                 [
                     server: 'cicd.in.luxair.lu',
                     service: 'cicd.in.luxair.lu',
@@ -308,7 +302,7 @@ def deployementName(app_name, git_tag) {
 }
 
 def heartbeatTest(heartbeatUrl) {
-    sh "sleep 60"
+    sh "sleep 5"
     sh "curl -m 5 -s $heartbeatUrl | grep -B1 -A3 '\"pass\"' "
 }
 
