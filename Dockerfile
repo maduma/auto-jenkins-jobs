@@ -12,5 +12,5 @@ COPY . .
 
 USER autojj
 
-ENTRYPOINT ["gunicorn", "--access-logfile", "-", "--log-file", "-", "--workers", "1", "--threads", "1", "--bind", "0.0.0.0:5000", "web:app"]
-EXPOSE 5000
+ENTRYPOINT ["gunicorn", "--access-logfile", "-", "--log-file", "-", "--workers", "1", "--threads", "1", "--bind", "0.0.0.0:8080", "web:app"]
+EXPOSE 8080

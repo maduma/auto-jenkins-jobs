@@ -4,8 +4,8 @@ def call(Map config = [:]) {
     def default_deploy_config = [
         tst: [
                 [
-                    server: 'cicd.in.luxair.lu',
-                    service: 'cicd.in.luxair.lu',
+                    server: 'dmulet.in.luxair.lu',
+                    service: 'dmulet.in.luxair.lu',
                 ],
         ],
         acc: [
@@ -178,7 +178,6 @@ def call(Map config = [:]) {
                         }
                         steps {
                             docker_compose_release(app_id, deploy_env, tarball)
-                            error "stop"
                         }
                     }
 
@@ -333,7 +332,6 @@ def heartbeatTest(heartbeatUrl) {
 }
 
 def docker_compose_release(app_id, deploy_env, tarball) {
-    copyMissingResources(['docker-compose.tmpl.yaml'])
     sh """
         set -ex
         rm -fr $app_id && mkdir $app_id

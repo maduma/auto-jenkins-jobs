@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+
+  {{ .Env.APP_ID }}:
+    image: {{ .Env.DOCKER_IMAGE }}
+    container_name: {{ .Env.APP_ID }}
+    restart: unless-stopped
+    environment:
+      - GITLAB_URL=https://gitlab.luxair.lu
+      - GITLAB_PRIVATE_TOKEN
+      - GITLAB_JENKINS_TRIGGER_SSL=FALSE
+      - JENKINS_URL=https://cicd.in.luxair.lu
+      - JENKINS_USERNAME
+      - JENKINS_PASSWORD
+      - JENKINS_GITLAB_CREDS_ID=cicd_gitlab
+      - GUNICORN_CMD_ARGS="--log-level=INFO"
+    networks:
+      - "traefik"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.{{ .Env.TRAEFIK_LABEL }}.rule=Host(`{{ .Env.SERVICE_HOST }}`) && PathPrefix(`/{{ .Env.APP_ID }}`)"
+      - "traefik.http.routers.{{ .Env.TRAEFIK_LABEL }}.tls"
+      - "traefik.http.routers.{{ .Env.TRAEFIK_LABEL }}.entrypoints=webs"
+      - "traefik.http.routers.{{ .Env.TRAEFIK_LABEL }}.service={{ .Env.TRAEFIK_LABEL }}"
+      - "traefik.http.routers.{{ .Env.TRAEFIK_LABEL }}.middlewares={{ .Env.TRAEFIK_LABEL }}-stripprefix"
+      - "traefik.http.middlewares.{{ .Env.TRAEFIK_LABEL }}-stripprefix.stripprefix.prefixes=/{{ .Env.APP_ID }}"
+      - "traefik.http.services.{{ .Env.TRAEFIK_LABEL }}.loadbalancer.healthcheck.path=/health"
+
+networks:
+  traefik:
+    external: true
+
