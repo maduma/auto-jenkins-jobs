@@ -8,6 +8,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 sh 'git version'
+                sh 'env'
                 echo "${parseReleaseTag()}"
             }
         }
