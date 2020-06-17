@@ -11,7 +11,7 @@ def call(Map config = [:]) {
     ]
 
     def registry = config.get('registry','registry.in.luxair.lu')
-    def registry_creds_id = config.get('registry_creds_id', 'registry')
+    def registry_creds_id = config.get('registry_creds_id', 'registry_snsakala')
     def registry_namespace = config.get('registry_namespace', 'infra')
     def python_image = config.get('python_image', 'python:3.8.2-slim')
     def dockerize_image = config.get('dockerize_image', 'registry.in.luxair.lu/dockerize:0.6.1')
