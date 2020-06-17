@@ -6,7 +6,7 @@ services:
     image: {{ .Env.DOCKER_IMAGE }}
     container_name: {{ .Env.APP_ID }}
     restart: unless-stopped
-    env_file: /.secrets/{{ .Env.APP_ID }}.env
+    env_file: /.secrets/{{ .Env.APP_NAME }}.env
     environment:
       - GITLAB_URL=https://gitlab.luxair.lu
       - GITLAB_JENKINS_TRIGGER_SSL=FALSE

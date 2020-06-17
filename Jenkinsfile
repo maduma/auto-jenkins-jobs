@@ -136,6 +136,7 @@ def call(Map config = [:]) {
             stage('Release and Deploy') {
                 environment {
                     // needed for docker-compose template
+                    APP_NAME = "$app_name"
                     APP_ID = "$app_id"
                     TRAEFIK_LABEL = "${app_id.replaceAll('\\.', '_')}" // dot (.) is a delimiter for traefik configuration
                     DOCKER_IMAGE = "$docker_image"
