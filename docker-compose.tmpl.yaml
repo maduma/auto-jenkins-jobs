@@ -6,13 +6,11 @@ services:
     image: {{ .Env.DOCKER_IMAGE }}
     container_name: {{ .Env.APP_ID }}
     restart: unless-stopped
+    env_file: /.secrets/{{ .Env.APP_ID }}.env
     environment:
       - GITLAB_URL=https://gitlab.luxair.lu
-      - GITLAB_PRIVATE_TOKEN
       - GITLAB_JENKINS_TRIGGER_SSL=FALSE
       - JENKINS_URL=https://cicd.in.luxair.lu
-      - JENKINS_USERNAME
-      - JENKINS_PASSWORD
       - JENKINS_GITLAB_CREDS_ID=cicd_gitlab
       - GUNICORN_CMD_ARGS="--log-level=INFO"
     networks:
