@@ -57,11 +57,11 @@ def parse_event(event):
     full_name = event['project']['path_with_namespace']
     fields = full_name.split('/')
 
-    if not len(fields) == 2:
-        logger.info(f'Cannot handle GitLab subgroup for {full_name}')
+    if not len(fields) > 1:
+        logger.error(f'Cannot get folder and short_name for {full_name}')
         return None
 
-    folder, short_name = full_name.split('/')
+    folder, *_, short_name = full_name.split('/')
     project_id = event['project_id']
     git_http_url = event['project']['git_http_url']
 
