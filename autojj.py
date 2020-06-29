@@ -57,11 +57,11 @@ def parse_event(event):
     full_name = event['project']['path_with_namespace']
     fields = full_name.split('/')
 
-    if not len(fields) == 2:
-        logger.info(f'Cannot handle GitLab subgroup for {full_name}')
+    if not len(fields) > 1:
+        logger.error(f'Cannot get folder and short_name for {full_name}')
         return None
 
-    folder, short_name = full_name.split('/')
+    folder, *_, short_name = full_name.split('/')
     project_id = event['project_id']
     git_http_url = event['project']['git_http_url']
 
@@ -78,6 +78,9 @@ def parse_event(event):
     if jenkinsfile:
         pipeline = is_autojj_project(jenkinsfile)
         project = project._replace(pipeline=pipeline)
+        folder = get_folder_setting(jenkinsfile)
+        if folder:
+            project = project._replace(folder=folder)
 
     return project
 
@@ -97,6 +100,13 @@ def is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES):
     logger.info('No known groovy call found in Jenkinsfile')
     return False
 
+def get_folder_setting(jenkinsfile):
+    regex = r'AUTOJJ:JENKINS_FOLDER:(\w+)'
+    match = re.search(regex, jenkinsfile)
+    if match:
+        return match.group(1)
+    else:
+        return None
 
 def install_pipeline(project, ops_log=None, ops=0):
     if ops > MAX_JENKINS_OPS:

@@ -26,27 +26,27 @@ def test_is_jenkins_online_bad_2(monkeypatch):
 
 def test_is_job_xml_updated_1(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    assert not is_job_xml_updated('job1', template='test_pipeline.tmpl.xml')
+    assert not is_job_xml_updated('job1', template='test/test_pipeline.tmpl.xml')
 
 def test_is_job_xml_updated_2(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    assert not is_job_xml_updated('job2', template='test_pipeline.tmpl.xml')
+    assert not is_job_xml_updated('job2', template='test/test_pipeline.tmpl.xml')
 
 def test_is_job_xml_updated_3(monkeypatch):
     monkeypatch.setattr(jenkins, "Jenkins", test_jenkins_mock.MockResponse)
-    assert is_job_xml_updated('job3', template='test_pipeline.tmpl.xml')
+    assert is_job_xml_updated('job3', template='test/test_pipeline.tmpl.xml')
 
 def test_get_version(monkeypatch):
     assert get_version('<top><description>Auto Jenkins Job, mulePipeline:0.0.2</description></top>') == {'type': 'mulePipeline', 'version': '0.0.2'}
 
 def test_get_description():
-    with open('test_job_good.xml', 'r') as f:
+    with open('test/test_job_good.xml', 'r') as f:
         xml = f.read()
         assert get_description(xml) == 'Auto Jenkins Job, mulePipeline:0.0.2'
 
 def test_get_description_bad():
     with pytest.raises(LookupError):
-        with open('test_job_bad.xml', 'r') as f:
+        with open('test/test_job_bad.xml', 'r') as f:
             xml = f.read()
             get_description(xml)
 
@@ -69,7 +69,7 @@ def test_create_pipeline_xml(monkeypatch):
         git_http_url = 'https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git',
         trigger_token='TOKEN',
     )
-    xml = create_pipeline_xml(project, template='test_pipeline_short.tmpl.xml')
+    xml = create_pipeline_xml(project, template='test/test_pipeline_short.tmpl.xml')
     assert xml == """<name>dentiste</name>
 <url>https://gitlab.maduma.org/maduma/jenkins-mule-pipeline.git</url>
 <credentialsId>unknown</credentialsId>
