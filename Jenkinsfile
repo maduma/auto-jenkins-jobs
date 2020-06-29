@@ -97,7 +97,7 @@ def call(Map config = [:]) {
                                 . .venv/bin/activate
                                 pip install --upgrade pip
                                 pip install -r requirements.txt
-                                pytest -v
+                                python -m pytest -v
                             '''
                         }
                     }
