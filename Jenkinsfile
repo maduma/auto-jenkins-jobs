@@ -302,9 +302,16 @@ def deployementName(app_name, git_tag) {
     }
 }
 
-def heartbeatTest(heartbeatUrl) {
-    sh "sleep 10"
-    sh "curl -m 5 -s $heartbeatUrl | grep -B1 -A3 '\"pass\"' "
+def heartbeatTest(url) {
+    for (i = 0; i < 20; i++) {
+        sleep(5)
+        status = sh script: "curl -s -m 5 -w '%{http_code}' -o /dev/null $url || true", returnStdout: true
+        if (status == '200') {
+            sh "curl -s -m 2 $url"
+            return true
+        }
+    }
+    error "Heartbeat check failed: $url"
 }
 
 def docker_compose_release(app_id, deploy_env, tarball) {
