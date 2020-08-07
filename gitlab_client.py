@@ -38,16 +38,21 @@ def is_webhook_installed(project, jenkins_url=settings.JENKINS_URL):
     jenkins_hook_url = jenkins_url + '/project/' + project.full_name
 
     for hook in hooks:
+        hook_id = hook['id']
         hook_url = hook['url']
         hook_project_id = hook['project_id']
         logger.debug(f"{hook_url}:{jenkins_hook_url} {hook_project_id}:{project.id}")
 
         if hook_url == jenkins_hook_url and hook_project_id == project.id:
             logger.info(f"hook already installed for {project.full_name}")
-            return True
+            return hook
 
     logger.info(f"hook not installed for {project.full_name}")
     return False
+
+def delete_webhook(project, jenkins_url=settings.JENKINS_URL):
+    jenkins_hook_url = jenkins_url + '/project/' + project.full_name
+    return True
 
 
 def install_webhook(

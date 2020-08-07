@@ -1,4 +1,4 @@
-from gitlab_client import is_webhook_installed, get_webhooks, install_webhook
+from gitlab_client import is_webhook_installed, get_webhooks, install_webhook, delete_webhook
 from gitlab_client import is_gitlab_online, get_raw_gitlab_jenkinsfile_url, get_jenkinsfile
 from autojj import Project
 import responses
@@ -24,14 +24,14 @@ def test_is_webhook_installed(monkeypatch):
         full_name = 'maduma/pompiste', folder = '', short_name = '', pipeline = '',
     )
     hooks = [
-        {'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 3},
-        {'url': 'https://jenkins.maduma.org/project/maduma/pompiste', "project_id": 7},
+        {'id': 1, 'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 3},
+        {'id': 3,'url': 'https://jenkins.maduma.org/project/maduma/pompiste', "project_id": 7},
     ]
     monkeypatch.setattr(gitlab_client, "get_webhooks", lambda project: hooks)
     assert is_webhook_installed(project, jenkins_url='https://jenkins.maduma.org')
     hooks = [
-        {'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 4},
-        {'url': 'https://jenkins.maduma.org/project/maduma/fleuriste', "project_id": 6},
+        {'id': 23, 'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 4},
+        {'id': 12, 'url': 'https://jenkins.maduma.org/project/maduma/fleuriste', "project_id": 6},
     ]
     monkeypatch.setattr(gitlab_client, "get_webhooks", lambda project: hooks)
     assert not is_webhook_installed(project, jenkins_url='https://jenkins.maduma.org')
@@ -64,6 +64,11 @@ def test_install_web_hook2(monkeypatch):
     project = Project(full_name = 'maduma/pompiste')
     msg = 'GitLab webhook already installed for maduma/pompiste'
     assert install_webhook(project, token='thisisatoken', jenkins_url='https://jenkins.maduma.org') == msg
+
+def test_delete_webhook():
+    project = Project(full_name = 'maduma/pompiste')
+    assert delete_webhook(project)
+    pass
 
 @responses.activate
 def test_getjenkinsfile():
