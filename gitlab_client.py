@@ -38,16 +38,30 @@ def is_webhook_installed(project, jenkins_url=settings.JENKINS_URL):
     jenkins_hook_url = jenkins_url + '/project/' + project.full_name
 
     for hook in hooks:
+        hook_id = hook['id']
         hook_url = hook['url']
         hook_project_id = hook['project_id']
         logger.debug(f"{hook_url}:{jenkins_hook_url} {hook_project_id}:{project.id}")
 
         if hook_url == jenkins_hook_url and hook_project_id == project.id:
             logger.info(f"hook already installed for {project.full_name}")
-            return True
+            return hook
 
     logger.info(f"hook not installed for {project.full_name}")
     return False
+
+def delete_webhook(project, hook, token=settings.GITLAB_PRIVATE_TOKEN):
+    gitlab_url = '/'.join(project.git_http_url.split('/')[:3])
+    hook_id = hook['id']
+    url = f'{gitlab_url}/api/v4/projects/{project.id}/hooks/{hook_id}'
+    resp = requests.delete(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
+
+    if resp.status_code != 204:
+        logger.error(f"Cannot delete hook {hook_id} for {project.full_name}")
+        return  False
+
+    logger.info(f"Delete hook {hook_id} for {project.full_name}")
+    return True
 
 
 def install_webhook(
@@ -56,8 +70,10 @@ def install_webhook(
     jenkins_url=settings.JENKINS_URL,
     ssl=settings.GITLAB_JENKINS_TRIGGER_SSL,
     ):
-    if is_webhook_installed(project):
-        return f'GitLab webhook already installed for {project.full_name}' 
+    hook = is_webhook_installed(project)
+    if hook:
+        if not delete_webhook(project, hook):
+            return f'Cannot delete webhook for {project.full_name}' 
 
     data = {
         "id": project.id,

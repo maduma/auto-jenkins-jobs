@@ -1,4 +1,4 @@
-from gitlab_client import is_webhook_installed, get_webhooks, install_webhook
+from gitlab_client import is_webhook_installed, get_webhooks, install_webhook, delete_webhook
 from gitlab_client import is_gitlab_online, get_raw_gitlab_jenkinsfile_url, get_jenkinsfile
 from autojj import Project
 import responses
@@ -24,14 +24,14 @@ def test_is_webhook_installed(monkeypatch):
         full_name = 'maduma/pompiste', folder = '', short_name = '', pipeline = '',
     )
     hooks = [
-        {'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 3},
-        {'url': 'https://jenkins.maduma.org/project/maduma/pompiste', "project_id": 7},
+        {'id': 1, 'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 3},
+        {'id': 3,'url': 'https://jenkins.maduma.org/project/maduma/pompiste', "project_id": 7},
     ]
     monkeypatch.setattr(gitlab_client, "get_webhooks", lambda project: hooks)
     assert is_webhook_installed(project, jenkins_url='https://jenkins.maduma.org')
     hooks = [
-        {'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 4},
-        {'url': 'https://jenkins.maduma.org/project/maduma/fleuriste', "project_id": 6},
+        {'id': 23, 'url': 'https://jenkins.maduma.org/project/web/dentiste', "project_id": 4},
+        {'id': 12, 'url': 'https://jenkins.maduma.org/project/maduma/fleuriste', "project_id": 6},
     ]
     monkeypatch.setattr(gitlab_client, "get_webhooks", lambda project: hooks)
     assert not is_webhook_installed(project, jenkins_url='https://jenkins.maduma.org')
@@ -59,11 +59,45 @@ def test_install_webhook_1(monkeypatch):
         'enable_ssl_verification': False,
         }
 
-def test_install_web_hook2(monkeypatch):
-    monkeypatch.setattr(gitlab_client, "is_webhook_installed", lambda project: True)
-    project = Project(full_name = 'maduma/pompiste')
-    msg = 'GitLab webhook already installed for maduma/pompiste'
+@responses.activate
+def test_install_webhook_2(monkeypatch):
+    monkeypatch.setattr(gitlab_client, "is_webhook_installed", lambda project: {'id': 32})
+    monkeypatch.setattr(gitlab_client, "delete_webhook", lambda project, hook: True)
+    responses.add(responses.POST, 'https://gitlab.maduma.org/api/v4/projects/7/hooks', status=201)
+    project = Project(
+        id = 7,
+        git_http_url = 'https://gitlab.maduma.org/maduma/pompiste.git',
+        full_name = 'maduma/pompiste',
+        trigger_token = 'TOKEN',
+    )
+    msg = 'Install GitLab webhook for maduma/pompiste'
     assert install_webhook(project, token='thisisatoken', jenkins_url='https://jenkins.maduma.org') == msg
+
+
+@responses.activate
+def test_install_webhook_3(monkeypatch):
+    monkeypatch.setattr(gitlab_client, "is_webhook_installed", lambda project: {'id': 32})
+    monkeypatch.setattr(gitlab_client, "delete_webhook", lambda project, hook: False)
+    project = Project(
+        id = 7,
+        git_http_url = 'https://gitlab.maduma.org/maduma/pompiste.git',
+        full_name = 'maduma/pompiste',
+        trigger_token = 'TOKEN',
+    )
+    msg = 'Cannot delete webhook for maduma/pompiste'
+    assert install_webhook(project, token='thisisatoken', jenkins_url='https://jenkins.maduma.org') == msg
+
+@responses.activate
+def test_delete_webhook():
+    project = Project(
+        id = 6,
+        git_http_url = 'https://gitlab.maduma.org/maduma/pompiste.git',
+    )
+    responses.add(responses.DELETE, 'https://gitlab.maduma.org/api/v4/projects/6/hooks/32', status=204)
+    assert delete_webhook(project, {'id': 32}, token='thisisatoken')
+    assert responses.calls[0].request.headers['PRIVATE-TOKEN'] == 'thisisatoken'
+    assert responses.calls[0].request.method == 'DELETE'
+    assert responses.calls[0].request.url == 'https://gitlab.maduma.org/api/v4/projects/6/hooks/32'
 
 @responses.activate
 def test_getjenkinsfile():
