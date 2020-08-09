@@ -54,14 +54,15 @@ def random_string():
 
 
 def parse_event(event):
-    full_name = event['project']['path_with_namespace']
-    fields = full_name.split('/')
+    path_with_namespace = event['project']['path_with_namespace']
+    fields = path_with_namespace.split('/')
 
     if not len(fields) > 1:
-        logger.error(f'Cannot get folder and short_name for {full_name}')
+        logger.error(f'Cannot get folder and short_name for {path_with_namespace}')
         return None
 
-    folder, *_, short_name = full_name.split('/')
+    folder, *_, short_name = path_with_namespace.split('/')
+    full_name = '/'.join([folder, short_name])
     project_id = event['project_id']
     git_http_url = event['project']['git_http_url']
 
@@ -81,6 +82,8 @@ def parse_event(event):
         folder = get_folder_setting(jenkinsfile)
         if folder:
             project = project._replace(folder=folder)
+            full_name = '/'.join([folder, short_name])
+            project = project._replace(full_name=full_name)
 
     return project
 

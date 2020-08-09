@@ -34,7 +34,7 @@ def test_parse_event_2(monkeypatch):
         assert job == Project(
             id = 6,
             short_name = 'toto',
-            full_name='maduma/subgroup/toto',
+            full_name='maduma/toto',
             folder = 'maduma',
             git_http_url = "https://gitlab.maduma.org/maduma/toto.git",
             pipeline = 'mulePipeline',
@@ -50,7 +50,7 @@ def test_parse_event_3(monkeypatch):
         assert job == Project(
             id = 6,
             short_name = 'toto',
-            full_name='maduma/subgroup/toto',
+            full_name='esb/toto',
             folder = 'esb',
             git_http_url = "https://gitlab.maduma.org/maduma/toto.git",
             pipeline = 'mulePipeline',
