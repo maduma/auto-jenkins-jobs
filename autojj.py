@@ -31,7 +31,7 @@ def process_event(event):
             logs = install_pipeline(project)
             return '\n'.join(logs), 200
         else:
-            msg = f"No known Jenkins Pipeline found for {project.full_name}"
+            msg = f"No known Jenkins Pipeline found for {project}"
             return msg, 200
 
     return "Cannot parse event", 200
@@ -80,9 +80,13 @@ def parse_event(event):
         pipeline = is_autojj_project(jenkinsfile)
         project = project._replace(pipeline=pipeline)
         folder = get_folder_setting(jenkinsfile)
+        short_name = get_jobname_setting(jenkinsfile)
+        if short_name:
+            project = project._replace(short_name=short_name)
         if folder:
             project = project._replace(folder=folder)
-            full_name = '/'.join([folder, short_name])
+        if folder or short_name:
+            full_name = '/'.join([project.folder, project.short_name])
             project = project._replace(full_name=full_name)
 
     return project
@@ -111,6 +115,14 @@ def get_folder_setting(jenkinsfile):
     else:
         return None
 
+def get_jobname_setting(jenkinsfile):
+    regex = r'AUTOJJ:JENKINS_JOBNAME:(\w+)'
+    match = re.search(regex, jenkinsfile)
+    if match:
+        return match.group(1)
+    else:
+        return None
+
 def install_pipeline(project, ops_log=None, ops=0):
     if ops > MAX_JENKINS_OPS:
         msg = f'Try more than {MAX_JENKINS_OPS} times, check errors'
@@ -132,7 +144,7 @@ def install_pipeline(project, ops_log=None, ops=0):
         ops_log.append(jenkins_client.update_pipeline(project))
     else: 
         if not len(ops_log):
-            msg = f'Pipeline {project.full_name} exists and up-to-date, nothing to do'
+            msg = f'Jenkins pipeline {project} exists and up-to-date, nothing to do'
             logger.info(msg)
             ops_log.append(msg)
         return ops_log

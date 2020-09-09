@@ -29,7 +29,7 @@ def get_webhooks(project, token=settings.GITLAB_PRIVATE_TOKEN):
     if resp.status_code == 200:
         return resp.json() # always return an iterable
 
-    logger.error(f"Cannot get hooks for {project.full_name}: " + resp.reason)
+    logger.error(f"Cannot get Jenkins hooks for {project}: " + resp.reason)
     return []
 
 
@@ -38,16 +38,15 @@ def is_webhook_installed(project, jenkins_url=settings.JENKINS_URL):
     jenkins_hook_url = jenkins_url + '/project/' + project.full_name
 
     for hook in hooks:
-        hook_id = hook['id']
         hook_url = hook['url']
         hook_project_id = hook['project_id']
         logger.debug(f"{hook_url}:{jenkins_hook_url} {hook_project_id}:{project.id}")
 
         if hook_url == jenkins_hook_url and hook_project_id == project.id:
-            logger.info(f"hook already installed for {project.full_name}")
+            logger.info(f"Jenkins hook already installed for {project}")
             return hook
 
-    logger.info(f"hook not installed for {project.full_name}")
+    logger.info(f"hook not installed for {project}")
     return False
 
 def delete_webhook(project, hook, token=settings.GITLAB_PRIVATE_TOKEN):
@@ -57,10 +56,10 @@ def delete_webhook(project, hook, token=settings.GITLAB_PRIVATE_TOKEN):
     resp = requests.delete(url, headers={'PRIVATE-TOKEN': token}, timeout=2)
 
     if resp.status_code != 204:
-        logger.error(f"Cannot delete hook {hook_id} for {project.full_name}")
+        logger.error(f"Cannot delete Jenkins hook {hook_id} for {project}")
         return  False
 
-    logger.info(f"Delete hook {hook_id} for {project.full_name}")
+    logger.info(f"Delete Jenkins hook {hook_id} for {project}")
     return True
 
 
@@ -73,7 +72,7 @@ def install_webhook(
     hook = is_webhook_installed(project)
     if hook:
         if not delete_webhook(project, hook):
-            return f'Cannot delete webhook for {project.full_name}' 
+            return f'Cannot delete webhook for {project}' 
 
     data = {
         "id": project.id,
@@ -90,11 +89,11 @@ def install_webhook(
     resp = requests.post(url, headers={'PRIVATE-TOKEN': token}, json=data)
 
     if resp.status_code == 201:
-        logger.info(f"New hook installed for {project.full_name}")
-        return f'Install GitLab webhook for {project.full_name}' 
+        logger.info(f"New hook installed for {project}")
+        return f'Install GitLab webhook for {project}' 
 
-    logger.error(f"Cannot install hook for {project.full_name}: " + resp.reason)
-    return f'Cannot install GitLab webhook for {project.full_name}'
+    logger.error(f"Cannot install hook for {project}: " + resp.reason)
+    return f'Cannot install GitLab webhook for {project}'
 
 
 def get_raw_gitlab_jenkinsfile_url(project):
@@ -109,5 +108,5 @@ def get_jenkinsfile(project, token=settings.GITLAB_PRIVATE_TOKEN):
     if resp.status_code == 200:
         return resp.text
     else:
-        logger.info(f'Cannot read Jenkinsfile for {project.full_name}: ' + str(resp.reason))
+        logger.info(f'Cannot read Jenkinsfile for {project}: ' + str(resp.reason))
         return None

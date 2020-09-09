@@ -58,6 +58,22 @@ def test_parse_event_3(monkeypatch):
         )
 
 def test_parse_event_4(monkeypatch):
+    monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: '//AUTOJJ:JENKINS_JOBNAME:boule\nmulePipeline()')
+    monkeypatch.setattr(autojj, 'random_string', lambda: 'secret')
+    with open('test/test_repository_update_event_subgroup.json', 'r') as f:
+        post_data = json.load(f)
+        job = parse_event(post_data)
+        assert job == Project(
+            id = 6,
+            short_name = 'boule',
+            full_name='maduma/boule',
+            folder = 'maduma',
+            git_http_url = "https://gitlab.maduma.org/maduma/toto.git",
+            pipeline = 'mulePipeline',
+            trigger_token = 'secret',
+        )
+
+def test_parse_event_5(monkeypatch):
     monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: 'mulePipeline()')
     with open('test/test_repository_update_event_bad.json', 'r') as f:
         post_data = json.load(f)
@@ -131,7 +147,7 @@ def test_process_event_not_repo_update():
 def test_process_event_no_pipeline(monkeypatch):
     project = Project(full_name='full')
     monkeypatch.setattr(autojj, "parse_event", lambda x: project)
-    assert process_event({'event_name': 'repository_update'}) == ("No known Jenkins Pipeline found for full", 200)
+    assert process_event({'event_name': 'repository_update'}) == ("No known Jenkins Pipeline found for Project(pipeline=False, id=0, full_name='full', folder='', short_name='', git_http_url='', trigger_token='')", 200)
 
 def test_process_event(monkeypatch):
     project = Project(pipeline = 'phpPipeline')
@@ -157,12 +173,12 @@ def install_pipeline_monkeypatch(monkeypatch, states=[ALL_GOOD_STATE]):
 def test_install_pipeline_1(monkeypatch):
     install_pipeline_monkeypatch(monkeypatch)
     project = Project(full_name = 'web/plane', folder = 'plane')
-    assert install_pipeline(project)  == ['Pipeline web/plane exists and up-to-date, nothing to do']
+    assert install_pipeline(project)  == ["Jenkins pipeline Project(pipeline=False, id=0, full_name='web/plane', folder='plane', short_name='', git_http_url='', trigger_token='') exists and up-to-date, nothing to do"]
 
 def test_install_pipeline_2(monkeypatch):
     install_pipeline_monkeypatch(monkeypatch)
     project = Project(full_name = 'infra/autojj', folder = 'infra')
-    assert install_pipeline(project)  == ['Pipeline infra/autojj exists and up-to-date, nothing to do']
+    assert install_pipeline(project)  == ["Jenkins pipeline Project(pipeline=False, id=0, full_name='infra/autojj', folder='infra', short_name='', git_http_url='', trigger_token='') exists and up-to-date, nothing to do"]
 
 def test_install_pipeline_3(monkeypatch):
     install_pipeline_monkeypatch(monkeypatch, states=[
