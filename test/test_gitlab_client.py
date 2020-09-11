@@ -70,7 +70,7 @@ def test_install_webhook_2(monkeypatch):
         full_name = 'maduma/pompiste',
         trigger_token = 'TOKEN',
     )
-    msg = 'Install GitLab webhook for maduma/pompiste'
+    msg = "Install GitLab webhook for Project(pipeline=False, id=7, full_name='maduma/pompiste', folder='', short_name='', git_http_url='https://gitlab.maduma.org/maduma/pompiste.git', trigger_token='TOKEN')"
     assert install_webhook(project, token='thisisatoken', jenkins_url='https://jenkins.maduma.org') == msg
 
 
@@ -84,7 +84,7 @@ def test_install_webhook_3(monkeypatch):
         full_name = 'maduma/pompiste',
         trigger_token = 'TOKEN',
     )
-    msg = 'Cannot delete webhook for maduma/pompiste'
+    msg = "Cannot delete webhook for Project(pipeline=False, id=7, full_name='maduma/pompiste', folder='', short_name='', git_http_url='https://gitlab.maduma.org/maduma/pompiste.git', trigger_token='TOKEN')"
     assert install_webhook(project, token='thisisatoken', jenkins_url='https://jenkins.maduma.org') == msg
 
 @responses.activate
