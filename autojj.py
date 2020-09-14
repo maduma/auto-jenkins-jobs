@@ -108,7 +108,7 @@ def is_autojj_project(jenkinsfile, types=settings.PROJECT_TYPES):
     return False
 
 def get_folder_setting(jenkinsfile):
-    regex = r'AUTOJJ:JENKINS_FOLDER:(\w+)'
+    regex = r'AUTOJJ:JENKINS_FOLDER:([\w-]+)'
     match = re.search(regex, jenkinsfile)
     if match:
         return match.group(1)
@@ -116,7 +116,7 @@ def get_folder_setting(jenkinsfile):
         return None
 
 def get_jobname_setting(jenkinsfile):
-    regex = r'AUTOJJ:JENKINS_JOBNAME:(\w+)'
+    regex = r'AUTOJJ:JENKINS_JOBNAME:([\w-]+)'
     match = re.search(regex, jenkinsfile)
     if match:
         return match.group(1)

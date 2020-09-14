@@ -42,7 +42,7 @@ def test_parse_event_2(monkeypatch):
         )
 
 def test_parse_event_3(monkeypatch):
-    monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: '//AUTOJJ:JENKINS_FOLDER:esb\nmulePipeline()')
+    monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: '//AUTOJJ:JENKINS_FOLDER:esb-1\nmulePipeline()')
     monkeypatch.setattr(autojj, 'random_string', lambda: 'secret')
     with open('test/test_repository_update_event_subgroup.json', 'r') as f:
         post_data = json.load(f)
@@ -50,23 +50,23 @@ def test_parse_event_3(monkeypatch):
         assert job == Project(
             id = 6,
             short_name = 'toto',
-            full_name='esb/toto',
-            folder = 'esb',
+            full_name='esb-1/toto',
+            folder = 'esb-1',
             git_http_url = "https://gitlab.maduma.org/maduma/toto.git",
             pipeline = 'mulePipeline',
             trigger_token = 'secret',
         )
 
 def test_parse_event_4(monkeypatch):
-    monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: '//AUTOJJ:JENKINS_JOBNAME:boule\nmulePipeline()')
+    monkeypatch.setattr(gitlab_client, 'get_jenkinsfile', lambda project: '//AUTOJJ:JENKINS_JOBNAME:boule-1\nmulePipeline()')
     monkeypatch.setattr(autojj, 'random_string', lambda: 'secret')
     with open('test/test_repository_update_event_subgroup.json', 'r') as f:
         post_data = json.load(f)
         job = parse_event(post_data)
         assert job == Project(
             id = 6,
-            short_name = 'boule',
-            full_name='maduma/boule',
+            short_name = 'boule-1',
+            full_name='maduma/boule-1',
             folder = 'maduma',
             git_http_url = "https://gitlab.maduma.org/maduma/toto.git",
             pipeline = 'mulePipeline',
